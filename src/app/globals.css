@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Variables CSS pour votre palette */
+:root {
+  --bg-primary: #F8F7F4;
+  --text-primary: black;
+}
+
+/* Application de la police Roboto globalement */
+* {
+  font-family: var(--font-roboto), system-ui, sans-serif;
+}
+
+/* Couleur de fond globale */
+body {
+  background-color: #F8F7F4;
+  min-height: 100vh;
+  margin: 20;
+  padding: 20;
+}
+
+/* Container principal avec marges */
+.main-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Marges pour les sections */
+.section {
+  margin: 40px 0;
+  padding: 20px;
+}
