@@ -1,14 +1,15 @@
 // page.tsx
 import Hero from '@/components/landing/Hero';
 import Infra from '@/components/landing/Infra';
-import InfraBubble from '@/components/landing/InfraBubble';
+import Bubble from '@/components/landing/Bubble';
 
 export default function Home() {
   return (
     <main>
       <Hero />
-      <Infra />
-       <InfraBubble />
+      <Infra /> 
+      <Bubble />
+
       {/* Autres sections */}
     </main>
   );
