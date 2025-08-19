@@ -19,9 +19,9 @@ const Header = () => {
     },
   ]
 
-  return (
-    <header className="w-full bg-[#F8F7F4] py-4">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+return (
+    <header className="w-full bg-[#F8F7F4] py-4 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between">
           {/* Logo à gauche */}
           <div className="flex-shrink-0">
@@ -29,29 +29,28 @@ const Header = () => {
               <Image
                 src="/icons/ECOLYON.svg"
                 alt="EcoLyon"
-                width={140}
-                height={50}
-                className="h-10 w-auto"
+                width={120}
+                height={40}
+                className="h-8 w-auto"
                 priority
               />
             </Link>
           </div>
 
           {/* Navigation à droite */}
-          <nav className="flex items-center">
+          <nav className="flex items-center space-x-8">
             {navigationItems.map((item, index) => (
-              <React.Fragment key={item.href}>
-                <Link
-                  href={item.href}
-                  className="px-6 py-2 text-black font-medium text-sm tracking-wide hover:text-green-600 transition-colors duration-200"
-                  style={{ textDecoration: 'none', color: 'black' }}
-                >
+              <Link
+                key={item.href}
+                href={item.href}
+                className="relative px-4 py-2 text-black font-normal text-sm tracking-wide uppercase transition-all duration-300 ease-in-out hover:text-ecolyon-green group"
+              >
+                <span className="relative z-10">
                   {item.label}
-                </Link>
-                {index < navigationItems.length - 1 && (
-                  <div className="w-px h-5 bg-gray-400 mx-4"></div>
-                )}
-              </React.Fragment>
+                </span>
+                {/* Effet de soulignement au hover */}
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-ecolyon-green transition-all duration-300 ease-in-out group-hover:w-full"></span>
+              </Link>
             ))}
           </nav>
         </div>
