@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import PollutionIndicators from './PollutionIndicators';
+import PollutionIndicators from '../air/PollutionIndicators';
 
 interface SousIndice {
   polluant_nom: string;
