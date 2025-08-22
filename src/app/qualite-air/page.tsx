@@ -3,6 +3,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import createGlobe from 'cobe';
+import PollutionCards from '@/components/air/PollutionCards';
 
 // Types pour les données de commentaire ATMO
 interface CommentaireData {
@@ -288,6 +289,9 @@ export default function QualiteAirPage() {
             )}
           </div>
         </section>
+
+        {/* Section des cartes de polluants */}
+        <PollutionCards />
       </div>
     </div>
   );
