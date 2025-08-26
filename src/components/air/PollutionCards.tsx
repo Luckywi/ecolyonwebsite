@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 
 interface SousIndice {
   polluant_nom: string;
@@ -142,13 +143,25 @@ const PollutantCard = ({
   pollutant: PollutantData; 
   index: number;
 }) => {
+  const router = useRouter();
   const concentration = pollutant.concentration || 0;
   const indice = pollutant.indice || 1;
   
   const handleLearnMore = () => {
-    console.log(`En savoir plus sur ${pollutant.name}`);
-    // Ici vous pouvez ajouter la navigation vers la page détaillée
-    // Par exemple : router.push(`/polluants/${pollutant.id}`);
+    if (pollutant.id === 'NO2') {
+      router.push('/qualite-air/NO2');
+    } else if (pollutant.id === 'O3') {
+      router.push('/qualite-air/O3');
+    } else if (pollutant.id === 'PM10') {
+      router.push('/qualite-air/PM10');
+    } else if (pollutant.id === 'PM2.5') {
+      router.push('/qualite-air/PM2.5');
+    } else if (pollutant.id === 'SO2') {
+      router.push('/qualite-air/SO2');
+    } else {
+      console.log(`En savoir plus sur ${pollutant.name}`);
+      // Ici vous pouvez ajouter la navigation vers d'autres pages détaillées
+    }
   };
 
   return (
@@ -156,7 +169,7 @@ const PollutantCard = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: index * 0.1 }}
-      className="bg-[#F8F7F4] rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 flex flex-col"
+      className="bg-white/30 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl hover:bg-white/40 transition-all duration-300 flex flex-col"
     >
       {/* Indicateur circulaire */}
       <CircularIndicator
@@ -261,7 +274,7 @@ const PollutionCards = () => {
             {[...Array(5)].map((_, index) => (
               <div
                 key={index}
-                className="bg-[#F8F7F4] rounded-2xl p-6 shadow-lg border border-gray-100 animate-pulse"
+                className="bg-white/30 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100 animate-pulse"
               >
                 <div className="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4"></div>
                 <div className="h-4 bg-gray-200 rounded mb-2"></div>
@@ -288,8 +301,6 @@ const PollutionCards = () => {
   return (
     <div className="py-12 px-4 sm:px-6 lg:px-8 bg-[#F8F7F4]">
       <div className="max-w-6xl mx-auto">
-
-
         {/* Grille des cartes de polluants */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
           {pollutantsData.map((pollutant, index) => (

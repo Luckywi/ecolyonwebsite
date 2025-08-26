@@ -43,3 +43,12 @@ img {
   max-width: 100%;
   height: auto;
 }
+
+.back-link-arrow {
+  filter: brightness(0);
+  transition: filter 0.3s ease;
+}
+
+.group:hover .back-link-arrow {
+  filter: brightness(0) saturate(100%) invert(39%) sepia(96%) saturate(352%) hue-rotate(70deg) brightness(95%) contrast(90%);
+}

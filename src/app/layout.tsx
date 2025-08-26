@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { Roboto } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/layout/Header'
+import Footer from '@/components/layout/Footer'
 
 // Configuration de la police Roboto
 const roboto = Roboto({
@@ -33,6 +34,7 @@ export default function RootLayout({
         <main className="min-h-screen">
           {children}
         </main>
+        <Footer />
       </body>
     </html>
   )

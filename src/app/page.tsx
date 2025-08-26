@@ -10,8 +10,6 @@ export default function Home() {
       <Hero />
       <Infra /> 
       <Bubble />
-      <Footer />
-      
 
       {/* Autres sections */}
     </main>
