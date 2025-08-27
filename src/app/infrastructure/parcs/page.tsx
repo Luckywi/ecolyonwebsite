@@ -1,4 +1,4 @@
-// src/app/infrastructure/poubelles/page.tsx
+// src/app/infrastructure/parcs/page.tsx
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -19,13 +19,13 @@ interface WFSResponse {
  numberReturned?: number;
 }
 
-export default function PoubellePage() {
- const [poubelleCount, setPoubelleCount] = useState(0);
+export default function ParcsPage() {
+ const [parcsCount, setParcsCount] = useState(0);
  const [loading, setLoading] = useState(true);
  const [error, setError] = useState('');
 
- // Configuration des étapes pour les poubelles
- const poubelleSteps: Step[] = [
+ // Configuration des étapes pour les parcs et jardins
+ const parcsSteps: Step[] = [
    {
      id: 1,
      title: "Ouvrez l'app EcoLyon",
@@ -40,32 +40,33 @@ export default function PoubellePage() {
    },
    {
      id: 3,
-     title: "Trouvez la poubelle la plus proche",
-     image: "/images/Poubelles/Poubelle.png",
-     description: "Visualisez toutes les poubelles publiques autour de vous"
+     title: "Explorez les parcs et jardins",
+     image: "/images/Parcs/Parcs.png",
+     description: "Découvrez tous les espaces verts et jardins publics autour de vous"
    },
    {
      id: 4,
      title: "Lancez la navigation",
-     image: "/images/Poubelles/StartNav.png",
-     description: "Cliquez sur la poubelle choisie pour lancer la navigation"
+     image: "/images/Parcs/StartNav.png",
+     description: "Cliquez sur le parc choisi pour lancer la navigation"
    },
    {
      id: 5,
      title: "Démarrez la navigation",
-     image: "/images/Poubelles/Nav.png",
-     description: "Lancez le GPS pour vous rendre à la poubelle sélectionnée"
+     image: "/images/Parcs/Nav.png",
+     description: "Lancez le GPS pour vous rendre au parc ou jardin sélectionné"
    }
  ];
 
- // Récupérer le nombre de corbeilles depuis l'API Grand Lyon
+ // Récupérer le nombre de parcs et jardins depuis l'API Grand Lyon
  useEffect(() => {
-   const fetchPoubelleCount = async () => {
+   const fetchParcsCount = async () => {
      try {
        setLoading(true);
        
+       // URL de l'API pour les parcs et jardins du Grand Lyon
        const response = await fetch(
-         'https://data.grandlyon.com/geoserver/metropole-de-lyon/ows?SERVICE=WFS&VERSION=2.0.0&request=GetFeature&typename=metropole-de-lyon:gin_nettoiement.gincorbeille&outputFormat=application/json&SRSNAME=EPSG:4171&count=1'
+         'https://data.grandlyon.com/geoserver/metropole-de-lyon/ows?SERVICE=WFS&VERSION=2.0.0&request=GetFeature&typename=metropole-de-lyon:com_donnees_communales.comparcjardin_1_0_0&outputFormat=application/json&SRSNAME=EPSG:4171&count=1'
        );
        
        if (!response.ok) {
@@ -75,16 +76,16 @@ export default function PoubellePage() {
        const data: WFSResponse = await response.json();
        const count = data.totalFeatures || data.numberMatched || data.features?.length || 0;
        
-       setPoubelleCount(count);
+       setParcsCount(count);
      } catch (err) {
        console.error('Erreur:', err);
-       setError('Impossible de récupérer le nombre de poubelles');
+       setError('Impossible de récupérer le nombre de parcs et jardins');
      } finally {
        setLoading(false);
      }
    };
 
-   fetchPoubelleCount();
+   fetchParcsCount();
  }, []);
 
  return (
@@ -113,7 +114,7 @@ export default function PoubellePage() {
          </Link>
        </motion.div>
 
-       {/* Icône poubelle en grand */}
+       {/* Icône parcs en grand */}
        <motion.div 
          className="flex justify-center mb-8"
          initial={{ opacity: 0, scale: 0.8 }}
@@ -122,8 +123,8 @@ export default function PoubellePage() {
        >
          <div className="w-32 h-32 relative">
            <Image
-             src="/logos/poubelle.png"
-             alt="Poubelles publiques"
+             src="/logos/PetJ.png"
+             alt="Parcs et jardins publics"
              fill
              className="object-contain"
              sizes="190px"
@@ -140,7 +141,7 @@ export default function PoubellePage() {
        >
          {loading ? (
            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-black">
-             Chargement du nombre de poubelles...
+             Chargement du nombre de parcs et jardins...
            </h1>
          ) : error ? (
            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-red-500">
@@ -149,12 +150,12 @@ export default function PoubellePage() {
          ) : (
            <>
              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-black">
-               Poubelles publiques :{' '}
+               Parcs et jardins :{' '}
                <span 
                  className="font-medium"
                  style={{ color: '#46952C' }}
                >
-                 {poubelleCount.toLocaleString()}
+                 {parcsCount.toLocaleString()}
                </span>
                {' '}dans le Grand Lyon
              </h1>
@@ -166,11 +167,9 @@ export default function PoubellePage() {
                animate={{ opacity: 1, y: 0 }}
                transition={{ duration: 0.6, delay: 0.4 }}
              >
-               Bien que Lyon dispose de milliers de poubelles publiques réparties dans toute la métropole, 
-               il n&apos;est pas toujours facile de les repérer quand on en a besoin. EcoLyon résout ce problème 
-               en géolocalisant automatiquement la poubelle la plus proche de votre position. En quelques clics seulement, 
-               trouvez et naviguez vers le point de collecte le plus proche. 
-               <span className="font-medium text-ecolyon-green"> <br></br>Plus d&apos;excuse pour les déchets abandonnés et les mégots par terre !</span>
+               Vous sortez toujours dans le même parc ? La métropole de Lyon regorge de centaines d&apos;espaces verts ! 
+               Pause déjeuner, balade du weekend, moment détente... C&apos;est toujours mieux dans la nature. 
+               Découvrez de nouveaux espaces verts moins connus près de votre position grâce à l&apos;app EcoLyon.
              </motion.p>
            </>
          )}
@@ -184,7 +183,7 @@ export default function PoubellePage() {
            animate={{ opacity: 1, y: 0 }}
            transition={{ duration: 0.8, delay: 0.4 }}
          >
-           <StepCarousel steps={poubelleSteps} />
+           <StepCarousel steps={parcsSteps} />
            
            {/* Bouton CTA */}
            <div className="flex justify-center mt-12 mb-16">
@@ -218,7 +217,7 @@ export default function PoubellePage() {
 
              <div className="flex justify-center">
              <Dock 
-               excludeId="poubelles"
+               excludeId="parcs"
                className="max-w-3xl"
              />
            </div>

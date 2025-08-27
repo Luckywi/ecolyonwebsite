@@ -1,4 +1,4 @@
-// src/app/infrastructure/poubelles/page.tsx
+// src/app/infrastructure/compost/page.tsx
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -19,13 +19,13 @@ interface WFSResponse {
  numberReturned?: number;
 }
 
-export default function PoubellePage() {
- const [poubelleCount, setPoubelleCount] = useState(0);
+export default function CompostPage() {
+ const [compostCount, setCompostCount] = useState(0);
  const [loading, setLoading] = useState(true);
  const [error, setError] = useState('');
 
- // Configuration des étapes pour les poubelles
- const poubelleSteps: Step[] = [
+ // Configuration des étapes pour le compost
+ const compostSteps: Step[] = [
    {
      id: 1,
      title: "Ouvrez l'app EcoLyon",
@@ -40,32 +40,33 @@ export default function PoubellePage() {
    },
    {
      id: 3,
-     title: "Trouvez la poubelle la plus proche",
-     image: "/images/Poubelles/Poubelle.png",
-     description: "Visualisez toutes les poubelles publiques autour de vous"
+     title: "Trouvez la borne à compost la plus proche",
+     image: "/images/Compost/Compost.png",
+     description: "Localisez toutes les bornes à compost collectif autour de vous"
    },
    {
      id: 4,
      title: "Lancez la navigation",
-     image: "/images/Poubelles/StartNav.png",
-     description: "Cliquez sur la poubelle choisie pour lancer la navigation"
+     image: "/images/Compost/StartNav.png",
+     description: "Cliquez sur la borne choisie pour lancer la navigation"
    },
    {
      id: 5,
      title: "Démarrez la navigation",
-     image: "/images/Poubelles/Nav.png",
-     description: "Lancez le GPS pour vous rendre à la poubelle sélectionnée"
+     image: "/images/Compost/Nav.png",
+     description: "Lancez le GPS pour vous rendre à la borne à compost sélectionnée"
    }
  ];
 
- // Récupérer le nombre de corbeilles depuis l'API Grand Lyon
+ // Récupérer le nombre de bornes de compost depuis l'API Grand Lyon
  useEffect(() => {
-   const fetchPoubelleCount = async () => {
+   const fetchCompostCount = async () => {
      try {
        setLoading(true);
        
+       // URL de l'API pour les bornes de compost du Grand Lyon
        const response = await fetch(
-         'https://data.grandlyon.com/geoserver/metropole-de-lyon/ows?SERVICE=WFS&VERSION=2.0.0&request=GetFeature&typename=metropole-de-lyon:gin_nettoiement.gincorbeille&outputFormat=application/json&SRSNAME=EPSG:4171&count=1'
+         'https://data.grandlyon.com/geoserver/metropole-de-lyon/ows?SERVICE=WFS&VERSION=2.0.0&request=GetFeature&typename=metropole-de-lyon:gic_collecte.bornecompost&outputFormat=application/json&SRSNAME=EPSG:4171&count=1'
        );
        
        if (!response.ok) {
@@ -75,16 +76,16 @@ export default function PoubellePage() {
        const data: WFSResponse = await response.json();
        const count = data.totalFeatures || data.numberMatched || data.features?.length || 0;
        
-       setPoubelleCount(count);
+       setCompostCount(count);
      } catch (err) {
        console.error('Erreur:', err);
-       setError('Impossible de récupérer le nombre de poubelles');
+       setError('Impossible de récupérer le nombre de bornes à compost');
      } finally {
        setLoading(false);
      }
    };
 
-   fetchPoubelleCount();
+   fetchCompostCount();
  }, []);
 
  return (
@@ -113,7 +114,7 @@ export default function PoubellePage() {
          </Link>
        </motion.div>
 
-       {/* Icône poubelle en grand */}
+       {/* Icône compost en grand */}
        <motion.div 
          className="flex justify-center mb-8"
          initial={{ opacity: 0, scale: 0.8 }}
@@ -122,8 +123,8 @@ export default function PoubellePage() {
        >
          <div className="w-32 h-32 relative">
            <Image
-             src="/logos/poubelle.png"
-             alt="Poubelles publiques"
+             src="/logos/compost.png"
+             alt="Bornes à compost collectif"
              fill
              className="object-contain"
              sizes="190px"
@@ -140,7 +141,7 @@ export default function PoubellePage() {
        >
          {loading ? (
            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-black">
-             Chargement du nombre de poubelles...
+             Chargement du nombre de bornes à compost...
            </h1>
          ) : error ? (
            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-red-500">
@@ -149,12 +150,12 @@ export default function PoubellePage() {
          ) : (
            <>
              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-black">
-               Poubelles publiques :{' '}
+               Bornes à compost :{' '}
                <span 
                  className="font-medium"
                  style={{ color: '#46952C' }}
                >
-                 {poubelleCount.toLocaleString()}
+                 {compostCount.toLocaleString()}
                </span>
                {' '}dans le Grand Lyon
              </h1>
@@ -166,11 +167,11 @@ export default function PoubellePage() {
                animate={{ opacity: 1, y: 0 }}
                transition={{ duration: 0.6, delay: 0.4 }}
              >
-               Bien que Lyon dispose de milliers de poubelles publiques réparties dans toute la métropole, 
-               il n&apos;est pas toujours facile de les repérer quand on en a besoin. EcoLyon résout ce problème 
-               en géolocalisant automatiquement la poubelle la plus proche de votre position. En quelques clics seulement, 
-               trouvez et naviguez vers le point de collecte le plus proche. 
-               <span className="font-medium text-ecolyon-green"> <br></br>Plus d&apos;excuse pour les déchets abandonnés et les mégots par terre !</span>
+               Trognon de pomme après le déjeuner, épluchures de mandarine au parc ? 
+               Vous connaissez sûrement le composteur de votre quartier, mais que faire quand vous êtes ailleurs dans la métropole ? 
+               Ces déchets organiques méritent mieux que la première poubelle grise ! Ouvrez l&apos;app EcoLyon et géolocalisez 
+               la borne à compost la plus proche pour donner une seconde vie à vos biodéchets.
+               <span className="font-medium text-ecolyon-green"> <br></br>Le compostage, c&apos;est aussi possible en dehors de chez soi !</span>
              </motion.p>
            </>
          )}
@@ -184,7 +185,7 @@ export default function PoubellePage() {
            animate={{ opacity: 1, y: 0 }}
            transition={{ duration: 0.8, delay: 0.4 }}
          >
-           <StepCarousel steps={poubelleSteps} />
+           <StepCarousel steps={compostSteps} />
            
            {/* Bouton CTA */}
            <div className="flex justify-center mt-12 mb-16">
@@ -218,7 +219,7 @@ export default function PoubellePage() {
 
              <div className="flex justify-center">
              <Dock 
-               excludeId="poubelles"
+               excludeId="compost"
                className="max-w-3xl"
              />
            </div>

@@ -1,4 +1,4 @@
-// src/app/infrastructure/poubelles/page.tsx
+// src/app/infrastructure/stations/page.tsx
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -9,23 +9,33 @@ import { ShinyButton } from '@/components/magicui/shiny-button';
 import StepCarousel, { Step } from '@/components/infrastructure/StepCarousel';
 import Dock from '@/components/infrastructure/Dock';
 
-interface WFSResponse {
- type: string;
- features: Array<{
-   type: string;
- }>;
- totalFeatures?: number;
- numberMatched?: number;
- numberReturned?: number;
+interface IRVEFeature {
+  type: string;
+  properties: {
+    nom_station?: string;
+    adresse_station?: string;
+    nom_operateur?: string;
+    puissance_nominale?: number;
+    code_insee_commune?: string;
+  };
+  geometry: {
+    type: string;
+    coordinates: [number, number];
+  };
 }
 
-export default function PoubellePage() {
- const [poubelleCount, setPoubelleCount] = useState(0);
+interface IRVEResponse {
+  type: string;
+  features: IRVEFeature[];
+}
+
+export default function StationsPage() {
+ const [stationsCount, setStationsCount] = useState(0);
  const [loading, setLoading] = useState(true);
  const [error, setError] = useState('');
 
- // Configuration des étapes pour les poubelles
- const poubelleSteps: Step[] = [
+ // Configuration des étapes pour les stations de recharge
+ const stationsSteps: Step[] = [
    {
      id: 1,
      title: "Ouvrez l'app EcoLyon",
@@ -40,51 +50,92 @@ export default function PoubellePage() {
    },
    {
      id: 3,
-     title: "Trouvez la poubelle la plus proche",
-     image: "/images/Poubelles/Poubelle.png",
-     description: "Visualisez toutes les poubelles publiques autour de vous"
+     title: "Trouvez une station de recharge",
+     image: "/images/Stations/Stations.png",
+     description: "Localisez toutes les bornes de recharge électrique autour de vous"
    },
    {
      id: 4,
      title: "Lancez la navigation",
-     image: "/images/Poubelles/StartNav.png",
-     description: "Cliquez sur la poubelle choisie pour lancer la navigation"
+     image: "/images/Stations/StartNav.png",
+     description: "Cliquez sur la station choisie pour lancer la navigation"
    },
    {
      id: 5,
      title: "Démarrez la navigation",
-     image: "/images/Poubelles/Nav.png",
-     description: "Lancez le GPS pour vous rendre à la poubelle sélectionnée"
+     image: "/images/Stations/Nav.png",
+     description: "Lancez le GPS pour vous rendre à la station de recharge sélectionnée"
    }
  ];
 
- // Récupérer le nombre de corbeilles depuis l'API Grand Lyon
+ // Codes INSEE des 9 arrondissements de Lyon
+ const LYON_DISTRICT_CODES = [
+   '69381', '69382', '69383', '69384', '69385',
+   '69386', '69387', '69388', '69389'
+ ];
+
+ // Regrouper les bornes par emplacement pour compter les stations
+ const groupStationsByLocation = (stations: IRVEFeature[]): IRVEFeature[] => {
+   const grouped = stations.reduce((acc, station) => {
+     if (!station.geometry?.coordinates || station.geometry.coordinates.length < 2) {
+       return acc;
+     }
+     
+     const lat = Math.round(station.geometry.coordinates[1] * 1000000) / 1000000;
+     const lon = Math.round(station.geometry.coordinates[0] * 1000000) / 1000000;
+     const locationKey = `${lat}_${lon}`;
+     
+     if (!acc[locationKey]) {
+       acc[locationKey] = [];
+     }
+     acc[locationKey].push(station);
+     
+     return acc;
+   }, {} as Record<string, IRVEFeature[]>);
+   
+   // Retourner une station représentative par emplacement
+   return Object.values(grouped).map(stationsGroup => stationsGroup[0]);
+ };
+
+ // Récupérer le nombre de stations de recharge depuis l'API Grand Lyon
  useEffect(() => {
-   const fetchPoubelleCount = async () => {
+   const fetchStationsCount = async () => {
      try {
        setLoading(true);
        
-       const response = await fetch(
-         'https://data.grandlyon.com/geoserver/metropole-de-lyon/ows?SERVICE=WFS&VERSION=2.0.0&request=GetFeature&typename=metropole-de-lyon:gin_nettoiement.gincorbeille&outputFormat=application/json&SRSNAME=EPSG:4171&count=1'
-       );
+       // Récupérer toutes les bornes pour tous les arrondissements
+       const stationPromises = LYON_DISTRICT_CODES.map(async (districtCode) => {
+         try {
+           const response = await fetch(
+             `https://data.grandlyon.com/geoserver/metropole-de-lyon/ows?SERVICE=WFS&VERSION=2.0.0&request=GetFeature&typename=metropole-de-lyon:nrj_energie.irve&SRSNAME=EPSG:4171&outputFormat=application/json&CQL_FILTER=code_insee_commune=${districtCode}&startIndex=0&sortby=gid`
+           );
+           
+           if (!response.ok) return [];
+           
+           const data: IRVEResponse = await response.json();
+           return data.features || [];
+         } catch (error) {
+           console.warn(`Erreur pour l'arrondissement ${districtCode}:`, error);
+           return [];
+         }
+       });
        
-       if (!response.ok) {
-         throw new Error('Erreur lors de la récupération des données');
-       }
+       const allDistrictStations = await Promise.all(stationPromises);
+       const allBornes = allDistrictStations.flat();
        
-       const data: WFSResponse = await response.json();
-       const count = data.totalFeatures || data.numberMatched || data.features?.length || 0;
+       // Regrouper les bornes par station (même emplacement)
+       const groupedStations = groupStationsByLocation(allBornes);
        
-       setPoubelleCount(count);
+       setStationsCount(groupedStations.length);
      } catch (err) {
        console.error('Erreur:', err);
-       setError('Impossible de récupérer le nombre de poubelles');
+       setError('Impossible de récupérer le nombre de stations de recharge');
      } finally {
        setLoading(false);
      }
    };
 
-   fetchPoubelleCount();
+   fetchStationsCount();
  }, []);
 
  return (
@@ -113,7 +164,7 @@ export default function PoubellePage() {
          </Link>
        </motion.div>
 
-       {/* Icône poubelle en grand */}
+       {/* Icône station de recharge en grand */}
        <motion.div 
          className="flex justify-center mb-8"
          initial={{ opacity: 0, scale: 0.8 }}
@@ -122,8 +173,8 @@ export default function PoubellePage() {
        >
          <div className="w-32 h-32 relative">
            <Image
-             src="/logos/poubelle.png"
-             alt="Poubelles publiques"
+             src="/logos/borne.png"
+             alt="Stations de recharge électrique Lyon"
              fill
              className="object-contain"
              sizes="190px"
@@ -140,7 +191,7 @@ export default function PoubellePage() {
        >
          {loading ? (
            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-black">
-             Chargement du nombre de poubelles...
+             Chargement du nombre de stations de recharge...
            </h1>
          ) : error ? (
            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-red-500">
@@ -149,12 +200,12 @@ export default function PoubellePage() {
          ) : (
            <>
              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-black">
-               Poubelles publiques :{' '}
+               Stations de recharge :{' '}
                <span 
                  className="font-medium"
                  style={{ color: '#46952C' }}
                >
-                 {poubelleCount.toLocaleString()}
+                 {stationsCount.toLocaleString()}
                </span>
                {' '}dans le Grand Lyon
              </h1>
@@ -166,11 +217,10 @@ export default function PoubellePage() {
                animate={{ opacity: 1, y: 0 }}
                transition={{ duration: 0.6, delay: 0.4 }}
              >
-               Bien que Lyon dispose de milliers de poubelles publiques réparties dans toute la métropole, 
-               il n&apos;est pas toujours facile de les repérer quand on en a besoin. EcoLyon résout ce problème 
-               en géolocalisant automatiquement la poubelle la plus proche de votre position. En quelques clics seulement, 
-               trouvez et naviguez vers le point de collecte le plus proche. 
-               <span className="font-medium text-ecolyon-green"> <br></br>Plus d&apos;excuse pour les déchets abandonnés et les mégots par terre !</span>
+               Vous cherchez une station de recharge pour votre voiture électrique ? L&apos;app EcoLyon localise 
+               les bornes disponibles dans toute la métropole. Plus besoin de tourner en rond pour trouver 
+               une place libre quand vous n&apos;êtes pas dans votre quartier.
+               <span className="font-medium text-ecolyon-green"> <br></br>Rechargez partout dans le Grand Lyon !</span>
              </motion.p>
            </>
          )}
@@ -184,7 +234,7 @@ export default function PoubellePage() {
            animate={{ opacity: 1, y: 0 }}
            transition={{ duration: 0.8, delay: 0.4 }}
          >
-           <StepCarousel steps={poubelleSteps} />
+           <StepCarousel steps={stationsSteps} />
            
            {/* Bouton CTA */}
            <div className="flex justify-center mt-12 mb-16">
@@ -218,7 +268,7 @@ export default function PoubellePage() {
 
              <div className="flex justify-center">
              <Dock 
-               excludeId="poubelles"
+               excludeId="stations"
                className="max-w-3xl"
              />
            </div>

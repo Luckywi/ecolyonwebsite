@@ -5,28 +5,45 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { IconCloud } from '@/components/infrastructure/IconCloud';
-import { getTotalInfrastructureCount } from '@/lib/infrastructure';
+import { getTotalInfrastructureCount, getInfrastructureBreakdown } from '@/lib/infrastructure';
 import InfrastructureCards from '@/components/infrastructure/InfrastructureCards';
 import { ShinyButton } from '@/components/magicui/shiny-button';
 
+interface InfrastructureItem {
+  name: string;
+  count: number;
+  description?: string;
+}
+
 export default function InfrastructurePage() {
   const [totalCount, setTotalCount] = useState(0);
+  const [infrastructureData, setInfrastructureData] = useState<InfrastructureItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    const loadInfrastructureData = async () => {
+    const loadAllData = async () => {
       try {
         setIsLoading(true);
-        const count = await getTotalInfrastructureCount();
+        setError('');
+        
+        // Chargement parallèle des deux APIs
+        const [count, breakdown] = await Promise.all([
+          getTotalInfrastructureCount(),
+          getInfrastructureBreakdown()
+        ]);
+        
         setTotalCount(count);
+        setInfrastructureData(breakdown);
       } catch (error) {
         console.error('Erreur lors du chargement des infrastructures:', error);
+        setError('Erreur lors du chargement des données');
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadInfrastructureData();
+    loadAllData();
   }, []);
 
   return (
@@ -67,16 +84,22 @@ export default function InfrastructurePage() {
         {/* Bannière avec le nombre d'infrastructures */}
         <section className="py-12 px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
-            <p className="text-xl sm:text-2xl lg:text-3xl font-light text-black ">
-              L&apos;app EcoLyon géolocalise{' '}
-              <span 
-                className="font-medium"
-                style={{ color: '#46952C' }}
-              >
-                {isLoading ? '...' : totalCount.toLocaleString()}
-              </span>
-              {' '}infrastructures publiques dans le Grand Lyon.
-            </p>
+            {error ? (
+              <p className="text-xl text-red-500">
+                {error}
+              </p>
+            ) : (
+              <p className="text-xl sm:text-2xl lg:text-3xl font-light text-black">
+                L&apos;app EcoLyon géolocalise{' '}
+                <span 
+                  className="font-medium"
+                  style={{ color: '#46952C' }}
+                >
+                  {isLoading ? '...' : totalCount.toLocaleString()}
+                </span>
+                {' '}infrastructures publiques dans le Grand Lyon.
+              </p>
+            )}
           </div>
         </section>
 
@@ -113,7 +136,11 @@ export default function InfrastructurePage() {
         </section>
 
         {/* Section des cartes d'infrastructures */}
-        <InfrastructureCards />
+        <InfrastructureCards 
+          data={infrastructureData}
+          loading={isLoading}
+          error={error}
+        />
       </div>
     </div>
   );
