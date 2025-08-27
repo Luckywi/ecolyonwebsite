@@ -50,7 +50,7 @@ const InfrastructureCards = () => {
     'Parcs et Jardins': {
       icon: '/logos/PetJ.png',
       title: 'Où se promener à Lyon ? Tous les parcs et jardins géolocalisés',
-      subtitle: 'parcs et jardins, leurs superficies et leurs équipements'
+      subtitle: 'parcs et jardins du Grand Lyon, leurs superficies et leurs équipements'
     },
     'Compost': {
       icon: '/logos/compost.png',
@@ -175,11 +175,68 @@ const InfrastructureCards = () => {
     );
   };
 
+  // Carte spéciale pour les recommandations
+  const FeedbackCard = ({ index }: { index: number }) => {
+    const handleFeedbackClick = () => {
+      console.log('Ouverture du formulaire de feedback');
+      // Ici vous pouvez ajouter la navigation vers un formulaire ou une page de contact
+    };
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: index * 0.1 }}
+        onClick={handleFeedbackClick}
+        className="group cursor-pointer"
+      >
+        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20">
+          <div className="flex items-center gap-6">
+            {/* Icône Lyon */}
+            <div className="flex-shrink-0">
+              <div className="w-20 h-20 relative">
+                <Image
+                  src="/icons/LYON.png"
+                  alt="Lyon - Recommandations"
+                  fill
+                  className="object-contain group-hover:scale-110 transition-transform duration-300"
+                  sizes="80px"
+                />
+              </div>
+            </div>
+            
+            {/* Contenu */}
+            <div className="flex-grow min-w-0">
+              <h3 className="text-xl font-normal text-black mb-3 transition-colors duration-300">
+                Des recommandations pour améliorer EcoLyon ?
+              </h3>
+              <p className="text-base text-gray-600 leading-relaxed">
+                Partagez vos idées pour rendre Lyon encore plus connectée à son environnement et améliorer l&apos;application EcoLyon
+              </p>
+            </div>
+            
+            {/* Flèche */}
+            <div className="flex-shrink-0">
+              <Image
+                src="/icons/arrowright.svg"
+                alt="Partager vos idées"
+                width={28}
+                height={28}
+                className="w-7 h-7 group-hover:translate-x-1 transition-transform duration-300"
+                style={{ filter: 'brightness(0) saturate(100%)' }}
+              />
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto space-y-4">
-          {[...Array(9)].map((_, index) => (
+          {[...Array(10)].map((_, index) => (
             <div
               key={index}
               className="bg-white/10 rounded-2xl p-6 shadow-lg animate-pulse"
@@ -220,6 +277,9 @@ const InfrastructureCards = () => {
               index={index}
             />
           ))}
+          
+          {/* Carte spéciale de feedback à la fin */}
+          <FeedbackCard index={infrastructures.length} />
         </div>
       </div>
     </div>
