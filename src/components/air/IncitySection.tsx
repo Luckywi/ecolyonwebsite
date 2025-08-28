@@ -1,107 +1,53 @@
-// src/components/air/IncitySection.tsx
 "use client";
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
 import { ShinyButton } from '@/components/magicui/shiny-button';
 
-interface AirQualityTomorrow {
-  qualificatif: string;
-  couleur_html: string;
-  indice: number;
-}
-
 const IncitySection = () => {
-  const [tomorrowQuality, setTomorrowQuality] = useState<AirQualityTomorrow | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  // Fonction pour obtenir l'image selon la qualité
-  const getImageForQuality = (qualificatif: string): string => {
-    switch (qualificatif.toLowerCase()) {
-      case 'bon':
-        return '/images/turquoise.svg';
-      case 'moyen':
-        return '/images/vert.svg';
-      case 'dégradé':
-        return '/images/jaune.svg';
-      case 'mauvais':
-        return '/images/rouge.svg';
-      case 'très mauvais':
-        return '/images/rouge-fonce.svg';
-      case 'extrêmement mauvais':
-        return '/images/violet.svg';
-      default:
-        return '/images/incity.jpeg'; // Image par défaut
-    }
-  };
-
-  // Récupérer la qualité de l'air pour demain
-  useEffect(() => {
-    const fetchTomorrowAirQuality = async () => {
-      try {
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const tomorrowDate = tomorrow.toISOString().split('T')[0];
-        
-        const response = await fetch(
-          `https://api.atmo-aura.fr/api/v1/communes/69381/indices/atmo?api_token=0c7d0bee25f494150fa591275260e81f&date_echeance=${tomorrowDate}`
-        );
-        
-        if (response.ok) {
-          const data = await response.json();
-          if (data.data?.[0]) {
-            setTomorrowQuality(data.data[0]);
-          }
-        }
-      } catch (error) {
-        console.error('Erreur lors de la récupération des données de demain:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTomorrowAirQuality();
-  }, []);
-
   return (
     <section className="py-16 px-4 sm:px-6 lg:px-8 bg-[#F8F7F4]">
       <div className="max-w-6xl mx-auto">
-        {/* Titre principal */}
-        <motion.h2 
-          className="text-2xl sm:text-3xl lg:text-4xl font-light text-black text-center mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          Le saviez-vous ?
-        </motion.h2>
-
-        {/* Section Tour Incity */}
+        {/* Section "Le saviez-vous ?" */}
         <motion.div 
           className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center mb-20"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          {/* Partie gauche - Image dynamique format iPhone */}
+          {/* Partie gauche - Image de la tour */}
           <div className="relative order-2 lg:order-1 flex justify-center">
-            <div className="relative w-48 sm:w-52 lg:w-56 rounded-2xl overflow-hidden shadow-lg" style={{ aspectRatio: '9/16', height: 'auto' }}>
+            <div className="relative">
               <Image
-                src={!loading && tomorrowQuality ? getImageForQuality(tomorrowQuality.qualificatif) : '/images/incity.jpeg'}
+                src='/images/incity.png'
                 alt="Tour Incity affichant l'indice de qualité d'air"
-                fill
-                className="object-cover hover:scale-105 transition-transform duration-700"
-                sizes="(max-width: 640px) 192px, (max-width: 1024px) 208px, 224px"
+                width={280}
+                height={700}
+                className="object-contain hover:scale-105 transition-transform duration-700"
+                style={{ 
+                  filter: 'drop-shadow(0 10px 25px rgba(0, 0, 0, 0.1))',
+                }}
               />
+              {/* Effet de fond décoratif cohérent avec la section du bas */}
+              <div className="absolute -inset-4 bg-gradient-to-r from-[#46952C]/20 to-blue-500/20 rounded-3xl blur-xl opacity-30 -z-10"></div>
             </div>
           </div>
 
-          {/* Partie droite - Texte explicatif */}
+          {/* Partie droite - Texte */}
           <div className="order-1 lg:order-2 text-center lg:text-left">
-            <p className="text-lg sm:text-xl lg:text-2xl font-light text-black leading-relaxed">
-              La tour Incity affiche chaque soir l&apos;indice de qualité d&apos;air pour le lendemain.
-            </p>
+            <h4 className="text-xl sm:text-2xl font-light text-black mb-6">
+              Le saviez-vous ?
+            </h4>
+            
+            <div className="space-y-4 mb-8 text-gray-700 leading-relaxed">
+              <p>
+                Depuis juin 2024, la tour Incity s&apos;éclaire chaque soir à la couleur de l&apos;indice ATMO de la qualité de l&apos;air du lendemain.
+              </p>
+              
+              <p>
+                Issue d&apos;une volonté conjointe de la Caisse d&apos;Epargne Rhône-Alpes, de la Métropole de Lyon, des acteurs de santé et d&apos;Atmo, cette initiative vise à rendre les données scientifiques accessibles et compréhensibles pour tous.
+              </p>
+            </div>
           </div>
         </motion.div>
 
@@ -111,11 +57,9 @@ const IncitySection = () => {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 1 }}
         >
-
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Partie gauche - Détails de l'app */}
-            <div className="order-2 lg:order-1">
+            <div className="order-2 lg:order-1 text-center lg:text-left">
               <h4 className="text-xl sm:text-2xl font-light text-black mb-6">
                 Vous ne voyez pas la tour Incity ? <br />
                 <span className="text-[#46952C] font-medium">Téléchargez l&apos;app EcoLyon !</span>
@@ -132,7 +76,7 @@ const IncitySection = () => {
               </div>
 
               {/* Bouton de téléchargement */}
-              <div className="flex justify-start">
+              <div className="flex justify-center lg:justify-start">
                 <ShinyButton 
                   className="bg-ecolyon-green hover:bg-ecolyon-green-dark text-white px-8 py-4 rounded-xl font-medium text-base shadow-lg hover:shadow-xl border-ecolyon-green"
                   style={{ 
