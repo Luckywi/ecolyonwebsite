@@ -111,7 +111,7 @@ const DockItem = ({ item, mouseX, index }: DockItemProps) => {
 
         {/* Indicateur de selection (point en dessous) */}
         <motion.div
-          className="absolute -bottom-2 w-1 h-1 bg-white rounded-full"
+          className="absolute -bottom-2 w-1 h-1  rounded-full"
           initial={{ opacity: 0, scale: 0 }}
           animate={{ 
             opacity: hovered ? 1 : 0, 

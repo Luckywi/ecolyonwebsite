@@ -162,7 +162,7 @@ export default function NO2DetailPage() {
   animate={{ opacity: 1, y: 0 }}
   transition={{ duration: 0.6, delay: 0.1 }}
 >
-  <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100">
+  <div className="backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100">
     
     {/* Section concentration et badge */}
     <div className="flex items-center justify-between mb-6">
@@ -207,7 +207,7 @@ export default function NO2DetailPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
-          <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100">
+          <div className=" backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100">
             <h3 className="text-xl font-semibold text-black mb-4">
               Qu&apos;est-ce que c&apos;est ?
             </h3>
@@ -224,7 +224,7 @@ export default function NO2DetailPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
-          <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100">
+          <div className=" backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100">
             <h3 className="text-xl font-semibold text-black mb-4">
               Les pics
             </h3>
@@ -241,7 +241,7 @@ export default function NO2DetailPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
         >
-          <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100">
+          <div className=" backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100">
             <h3 className="text-xl font-semibold text-black mb-4">
               Les effets sur la santé
             </h3>
@@ -258,7 +258,7 @@ export default function NO2DetailPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
         >
-          <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100">
+          <div className=" backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100">
             <h3 className="text-xl font-semibold text-black mb-4">
               Les sources principales
             </h3>

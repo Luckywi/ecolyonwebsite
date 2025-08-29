@@ -169,7 +169,7 @@ const PollutantCard = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: index * 0.1 }}
-      className="bg-white/30 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl hover:bg-white/40 transition-all duration-300 flex flex-col"
+      className="backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl hover:/40 transition-all duration-300 flex flex-col"
     >
       {/* Indicateur circulaire */}
       <CircularIndicator
@@ -274,7 +274,7 @@ const PollutionCards = () => {
             {[...Array(5)].map((_, index) => (
               <div
                 key={index}
-                className="bg-white/30 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100 animate-pulse"
+                className="backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100 animate-pulse"
               >
                 <div className="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4"></div>
                 <div className="h-4 bg-gray-200 rounded mb-2"></div>

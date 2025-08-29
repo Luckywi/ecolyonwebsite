@@ -116,7 +116,7 @@ const GlobeAirQuality = ({ qualityColor, globalIndex }: GlobeAirQualityProps) =>
         
         {/* Overlay avec informations */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="text-center bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-gray-200">
+          <div className="text-center /80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-gray-200">
             <div className="flex items-center justify-center gap-3 mb-2">
               <div 
                 className="w-4 h-4 rounded-full border border-gray-300"

@@ -110,7 +110,7 @@ const InfrastructureCards = ({ data, loading, error }: InfrastructureCardsProps)
         className="group"
       >
         <Link href={infrastructure.link} className="block cursor-pointer">
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20">
+          <div className="backdrop-blur-sm rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20">
             <div className="flex items-center gap-6">
               {/* Icône */}
               <div className="flex-shrink-0">
@@ -181,7 +181,7 @@ const InfrastructureCards = ({ data, loading, error }: InfrastructureCardsProps)
         className="group"
       >
         <Link href="/contact" className="block cursor-pointer">
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20">
+          <div className=" backdrop-blur-sm rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20">
             <div className="flex items-center gap-6">
               {/* Icône Lyon */}
               <div className="flex-shrink-0">
@@ -232,7 +232,7 @@ const InfrastructureCards = ({ data, loading, error }: InfrastructureCardsProps)
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3, delay: index * 0.05 }}
-      className="bg-white/10 rounded-2xl p-8 shadow-lg"
+      className=" rounded-2xl p-8 shadow-lg"
     >
       <div className="flex items-center gap-6">
         <div className="w-20 h-20 bg-gray-300 rounded-2xl animate-pulse"></div>
