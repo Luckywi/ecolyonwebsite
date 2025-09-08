@@ -124,7 +124,7 @@ const Footer = () => {
         aria-label="Visiter le site Lyon 2030"
       >
         <Image
-          src="/icons/lyon2030.svg"
+          src="/icons/Lyon2030.svg"
           alt="Lyon 2030"
           width={80}
           height={48}
