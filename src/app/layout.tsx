@@ -76,9 +76,6 @@ export const metadata: Metadata = {
     shortcut: '/favicon.ico',
   },
   manifest: '/manifest.json',
-  other: {
-    'apple-itunes-app': 'app-id=6747041717'
-  }
 }
 
 export default function RootLayout({
@@ -89,7 +86,11 @@ export default function RootLayout({
   return (
     <html lang="fr" className={roboto.variable}>
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta name="theme-color" content="#F8F7F4" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-itunes-app" content="app-id=6747041717" />
       </head>
       <body className={`${roboto.className} bg-[#F8F7F4] antialiased`}>
         <Header />

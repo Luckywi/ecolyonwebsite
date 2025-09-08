@@ -21,6 +21,11 @@ body {
   background-color: #F8F7F4;
   color: black;
   line-height: 1.5;
+  /* Safe area pour iPhone avec encoche */
+  padding-top: env(safe-area-inset-top);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* Suppression des marges par défaut */
@@ -51,4 +56,26 @@ img {
 
 .group:hover .back-link-arrow {
   filter: brightness(0) saturate(100%) invert(39%) sepia(96%) saturate(352%) hue-rotate(70deg) brightness(95%) contrast(90%);
+}
+
+/* Optimisations mobile PWA */
+@supports (height: 100dvh) {
+  body {
+    min-height: 100dvh;
+  }
+}
+
+/* Support pour les encoches iPhone */
+@supports (padding: max(0px)) {
+  body {
+    padding-top: max(env(safe-area-inset-top), 0px);
+    padding-left: max(env(safe-area-inset-left), 0px);
+    padding-right: max(env(safe-area-inset-right), 0px);
+    padding-bottom: max(env(safe-area-inset-bottom), 0px);
+  }
+}
+
+/* Couleur de fond pour la safe area */
+html {
+  background-color: #F8F7F4;
 }

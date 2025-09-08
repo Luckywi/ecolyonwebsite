@@ -29,13 +29,13 @@ export default function BancsClient() {
    {
      id: 1,
      title: "Ouvrez l'app EcoLyon",
-     image: "/images/Home.png",
+     image: "/images/Home.PNG",
      description: "Lancez l'application EcoLyon sur votre téléphone"
    },
    {
      id: 2,
      title: "Accédez au menu",
-     image: "/images/Menu.png",
+     image: "/images/Menu.PNG",
      description: "Appuyez sur le menu pour voir toutes les fonctionnalités"
    },
    {

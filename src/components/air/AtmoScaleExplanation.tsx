@@ -179,9 +179,9 @@ const AtmoScaleExplanation = () => {
         {/* Explication du calcul global */}
         <div className="mt-12 md:mt-16 text-center">
           <div className="rounded-xl p-4 md:p-6 max-w-3xl mx-auto">
-            <h3 className="text-xl md:text-2xl font-light text-black mb-3 md:mb-4 px-2">
+              <h4 className="text-lg sm:text-xl lg:text-2xl font-light text-black mb-4 sm:mb-6">
               Comment est calculé l&apos;indice global ?
-            </h3>
+            </h4>
             <p className="space-y-4 mb-6 md:mb-8 text-gray-700 leading-relaxed text-sm md:text-base px-2">
               <br/>
               L&apos;indice ATMO global correspond toujours au polluant le plus dégradé : si 4 polluants sont bons mais que l&apos;ozone est mauvais, l&apos;indice sera mauvais.
