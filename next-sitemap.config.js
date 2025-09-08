@@ -1,15 +1,15 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
   siteUrl: 'https://ecolyon.fr',
-  generateRobotsTxt: true, // Génère aussi robots.txt
+  generateRobotsTxt: true,
   changefreq: 'weekly',
   priority: 0.7,
   sitemapSize: 5000,
   exclude: [
-    '/api/*', // Exclure les routes API
-    '/server-sitemap-index.xml', // Exclure le sitemap serveur si utilisé
+    '/api/*',
+    '/server-sitemap-index.xml',
   ],
-  additionalPaths: async (config) => {
+  additionalPaths: async () => {
     const result = []
 
     // Pages principales avec priorité élevée
@@ -70,7 +70,7 @@ module.exports = {
       result.push({
         loc: page,
         priority: 0.8,
-        changefreq: 'daily', // Données mises à jour quotidiennement
+        changefreq: 'daily',
         lastmod: new Date().toISOString(),
       })
     })
@@ -120,39 +120,7 @@ module.exports = {
         crawlDelay: 1,
       },
     ],
-    additionalSitemaps: [
-      'https://ecolyon.fr/sitemap.xml',
-    ],
+    // SUPPRIMÉ: additionalSitemaps pour éviter la boucle
   },
-  transform: async (config, path) => {
-    // Configuration personnalisée pour certaines routes
-    if (path === '/') {
-      return {
-        loc: path,
-        changefreq: 'weekly',
-        priority: 1.0,
-        lastmod: new Date().toISOString(),
-        alternateRefs: [
-          {
-            href: 'https://ecolyon.fr',
-            hreflang: 'fr',
-          },
-        ],
-      }
-    }
-
-    // Configuration par défaut
-    return {
-      loc: path,
-      changefreq: config.changefreq,
-      priority: config.priority,
-      lastmod: new Date().toISOString(),
-      alternateRefs: [
-        {
-          href: `https://ecolyon.fr${path}`,
-          hreflang: 'fr',
-        },
-      ],
-    }
-  },
+  // SUPPRIMÉ: transform function qui créait les alternateRefs problématiques
 }

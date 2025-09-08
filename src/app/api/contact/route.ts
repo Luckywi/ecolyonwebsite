@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
 
     // Préparation des données pour l'email
     const emailData = {
-      from: 'EcoLyon <noreply@ecolyon.fr>',
+      from: 'EcoLyon <onboarding@resend.dev>',
       to: [process.env.CONTACT_EMAIL || 'contact@ecolyon.fr'],
       subject: `🌱 Nouveau message EcoLyon - ${data.sujet}`,
       html: `
