@@ -29,13 +29,13 @@ export default function RandonneesClient() {
    {
      id: 1,
      title: "Ouvrez l'app EcoLyon",
-     image: "/images/Home.PNG",
+     image: "/images/Home.png",
      description: "Lancez l'application EcoLyon sur votre téléphone"
    },
    {
      id: 2,
      title: "Accédez au menu",
-     image: "/images/Menu.PNG",
+     image: "/images/Menu.png",
      description: "Appuyez sur le menu pour voir toutes les fonctionnalités"
    },
    {

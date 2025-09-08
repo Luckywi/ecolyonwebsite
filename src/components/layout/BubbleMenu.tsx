@@ -103,6 +103,12 @@ export default function BubbleMenu({
     onMenuClick?.(nextState);
   };
 
+  const handleLinkClick = () => {
+    // Fermer le menu lors du clic sur un lien
+    setIsMenuOpen(false);
+    onMenuClick?.(false);
+  };
+
   useEffect(() => {
     const overlay = overlayRef.current;
     const bubbles = bubblesRef.current.filter(Boolean);
@@ -313,6 +319,7 @@ export default function BubbleMenu({
                   href={item.href}
                   role="menuitem"
                   aria-label={item.ariaLabel || item.label}
+                  onClick={handleLinkClick}
                   className={[
                     'pill-link',
                     'w-full',

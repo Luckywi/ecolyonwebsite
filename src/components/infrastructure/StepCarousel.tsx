@@ -26,7 +26,7 @@ const StepCarousel = ({ steps }: StepCarouselProps) => {
   const [isMobile, setIsMobile] = useState(false);
 
   // Configuration
-  const itemWidth = isMobile ? 280 : 320;
+  const itemWidth = isMobile ? 187 : 320;
 
   // Détection mobile
   useEffect(() => {
@@ -172,8 +172,8 @@ const StepCarousel = ({ steps }: StepCarouselProps) => {
                   <div 
                     className="relative mx-auto mb-8"
                     style={{ 
-                      width: isMobile ? '280px' : '300px', 
-                      height: isMobile ? '497px' : '533px',
+                      width: isMobile ? '187px' : '300px', 
+                      height: isMobile ? '331px' : '533px',
                     }}
                   >
                     <Image
@@ -181,7 +181,7 @@ const StepCarousel = ({ steps }: StepCarouselProps) => {
                       alt={step.title}
                       fill
                       className="object-contain"
-                      sizes={isMobile ? "280px" : "300px"}
+                      sizes={isMobile ? "187px" : "300px"}
                       quality={95}
                       priority={Math.abs(index - currentStep) <= 1}
                       placeholder="blur"
