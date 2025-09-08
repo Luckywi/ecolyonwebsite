@@ -1,6 +1,7 @@
 // src/app/api/contact/route.ts
 import { createClient } from 'redis';
 import { NextRequest, NextResponse } from 'next/server';
+import { Resend } from 'resend';
 
 interface ContactFormData {
   nom: string;
@@ -20,6 +21,47 @@ const getRedisClient = async () => {
   }
   
   return redis;
+};
+
+// Fonction d'envoi d'email
+const sendNotificationEmail = async (messageData: any) => {
+  if (!process.env.NOTIFY_NEW_MESSAGES || process.env.NOTIFY_NEW_MESSAGES === 'false') {
+    return;
+  }
+
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('RESEND_API_KEY manquante, pas de notification email');
+    return;
+  }
+
+  try {
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    
+    await resend.emails.send({
+      from: 'EcoLyon <noreply@ecolyon.fr>',
+      to: [process.env.ADMIN_EMAIL || 'contact@ecolyon.fr'],
+      subject: `🌱 Nouveau message EcoLyon - ${messageData.sujet}`,
+      html: `
+        <h2>📧 Nouveau message de contact reçu</h2>
+        <p><strong>De:</strong> ${messageData.nom} (${messageData.email})</p>
+        <p><strong>Sujet:</strong> ${messageData.sujet}</p>
+        <p><strong>Message:</strong></p>
+        <blockquote style="background: #f5f5f5; padding: 15px; border-left: 4px solid #46952C;">
+          ${messageData.message.replace(/\n/g, '<br>')}
+        </blockquote>
+        <hr>
+        <small>
+          <strong>ID:</strong> ${messageData.id}<br>
+          <strong>Reçu le:</strong> ${new Date(messageData.timestamp).toLocaleString('fr-FR')}<br>
+          <a href="https://ecolyon.fr/api/contact?token=${process.env.ADMIN_API_TOKEN}">Voir tous les messages</a>
+        </small>
+      `
+    });
+    
+    console.log('✅ Email de notification envoyé');
+  } catch (error) {
+    console.error('❌ Erreur envoi email:', error);
+  }
 };
 
 export async function POST(request: NextRequest) {
@@ -75,6 +117,9 @@ export async function POST(request: NextRequest) {
       timestamp: messageData.timestamp
     });
 
+    // Envoyer notification email
+    await sendNotificationEmail(messageData);
+
     return NextResponse.json(
       { 
         success: true, 
@@ -104,10 +149,19 @@ export async function GET(request: NextRequest) {
   let redis;
   
   try {
-    // TODO: Ajouter authentification admin ici
+    // Vérification du token d'authentification
+    const { searchParams } = new URL(request.url);
+    const token = searchParams.get('token');
+    
+    if (!token || token !== process.env.ADMIN_API_TOKEN) {
+      return NextResponse.json(
+        { error: 'Accès non autorisé' },
+        { status: 401 }
+      );
+    }
+    
     redis = await getRedisClient();
     
-    const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '50');
     const offset = parseInt(searchParams.get('offset') || '0');
 
