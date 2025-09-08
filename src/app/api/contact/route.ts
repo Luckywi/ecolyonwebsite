@@ -1,6 +1,6 @@
 // src/app/api/contact/route.ts
+import { createClient } from 'redis';
 import { NextRequest, NextResponse } from 'next/server';
-// import { kv } from '@vercel/kv';
 
 interface ContactFormData {
   nom: string;
@@ -9,9 +9,25 @@ interface ContactFormData {
   message: string;
 }
 
+// Connexion Redis
+const getRedisClient = async () => {
+  const redis = createClient({
+    url: process.env.REDIS_URL || process.env.KV_URL || 'redis://localhost:6379'
+  });
+  
+  if (!redis.isOpen) {
+    await redis.connect();
+  }
+  
+  return redis;
+};
+
 export async function POST(request: NextRequest) {
+  let redis;
+  
   try {
     const data: ContactFormData = await request.json();
+    redis = await getRedisClient();
     
     // Validation des données
     if (!data.nom || !data.email || !data.sujet || !data.message) {
@@ -41,16 +57,14 @@ export async function POST(request: NextRequest) {
       status: 'nouveau',
     };
 
-    // TODO: Décommenter quand les variables d'environnement Vercel KV seront configurées
-    
-    // Sauvegarder dans Vercel KV
-    // await kv.hset(`contact:${messageData.id}`, messageData);
+    // Sauvegarder dans Redis
+    await redis.hSet(`contact:${messageData.id}`, messageData);
     
     // Ajouter à la liste des messages (pour faciliter la récupération)
-    // await kv.lpush('contact:messages', messageData.id);
+    await redis.lPush('contact:messages', messageData.id);
     
     // Optionnel: garder seulement les 1000 derniers messages
-    // await kv.ltrim('contact:messages', 0, 999);
+    await redis.lTrim('contact:messages', 0, 999);
 
     // Pour le développement - log en console
     console.log('📧 Nouveau message de contact reçu:', {
@@ -77,40 +91,36 @@ export async function POST(request: NextRequest) {
       { error: 'Erreur interne du serveur' },
       { status: 500 }
     );
+  } finally {
+    // Fermer la connexion Redis
+    if (redis) {
+      await redis.quit();
+    }
   }
 }
 
 // Route GET pour récupérer les messages (admin uniquement)
 export async function GET(request: NextRequest) {
+  let redis;
+  
   try {
     // TODO: Ajouter authentification admin ici
+    redis = await getRedisClient();
     
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '50');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    // TODO: Décommenter quand les variables d'environnement Vercel KV seront configurées
-    
     // Récupérer la liste des IDs de messages
-    // const messageIds = await kv.lrange('contact:messages', offset, offset + limit - 1);
+    const messageIds = await redis.lRange('contact:messages', offset, offset + limit - 1);
     
     // Récupérer les détails de chaque message
-    // const messages = await Promise.all(
-    //   messageIds.map(id => kv.hgetall(`contact:${id}`))
-    // );
-
-    // Pour le développement
-    const messages = [
-      {
-        id: 'dev_message_1',
-        nom: 'Message de développement',
-        email: 'dev@example.com',
-        sujet: 'test',
-        message: 'Ceci est un message de test pour le développement',
-        timestamp: new Date().toISOString(),
-        status: 'nouveau'
-      }
-    ];
+    const messages = await Promise.all(
+      messageIds.map(async (id: string) => {
+        const message = await redis.hGetAll(`contact:${id}`);
+        return message;
+      })
+    );
 
     return NextResponse.json({
       messages,
@@ -126,5 +136,10 @@ export async function GET(request: NextRequest) {
       { error: 'Erreur interne du serveur' },
       { status: 500 }
     );
+  } finally {
+    // Fermer la connexion Redis
+    if (redis) {
+      await redis.quit();
+    }
   }
 }
