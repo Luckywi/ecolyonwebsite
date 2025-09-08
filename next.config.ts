@@ -87,7 +87,7 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      // AJOUT : Headers pour les sitemaps
+      // Headers pour les sitemaps (version no-cache temporaire)
       {
         source: '/sitemap.xml',
         headers: [
@@ -97,7 +97,15 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Cache-Control',
-            value: 'public, max-age=3600', // 1 heure de cache
+            value: 'no-cache, no-store, must-revalidate',
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache',
+          },
+          {
+            key: 'Expires',
+            value: '0',
           },
         ],
       },
@@ -110,7 +118,15 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Cache-Control',
-            value: 'public, max-age=3600', // 1 heure de cache
+            value: 'no-cache, no-store, must-revalidate',
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache',
+          },
+          {
+            key: 'Expires',
+            value: '0',
           },
         ],
       },
