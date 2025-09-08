@@ -87,6 +87,46 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      // AJOUT : Headers pour les sitemaps
+      {
+        source: '/sitemap.xml',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/xml; charset=utf-8',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600', // 1 heure de cache
+          },
+        ],
+      },
+      {
+        source: '/sitemap-0.xml',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/xml; charset=utf-8',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600', // 1 heure de cache
+          },
+        ],
+      },
+      {
+        source: '/robots.txt',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'text/plain; charset=utf-8',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600', // 1 heure de cache
+          },
+        ],
+      },
     ]
   },
 
