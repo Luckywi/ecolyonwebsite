@@ -51,7 +51,7 @@ const PollutionIndicators = ({ globalIndex, sousIndices }: PollutionIndicatorsPr
       let currentStep = 1;
       
       const animationInterval = setInterval(() => {
-        setAnimatedValues(prev => {
+      setAnimatedValues(() => {
           const newValues: { [key: string]: number } = {};
           
           // Pour chaque indicateur, calculer sa valeur actuelle
@@ -102,32 +102,35 @@ const PollutionIndicators = ({ globalIndex, sousIndices }: PollutionIndicatorsPr
   }) => {
     const color = getColor(value);
     const numberOfSegments = 6;
-    const radius = 56;
-    const centerX = 80;
-    const centerY = 80;
-    const strokeWidth = 12;
+    
+    // Responsive sizing
+    const radius = { mobile: 36, desktop: 56 };
+    const centerX = { mobile: 56, desktop: 80 };
+    const centerY = { mobile: 56, desktop: 80 };
+    const strokeWidth = { mobile: 8, desktop: 12 };
     const gapAngle = 0.5; // Espacement entre les segments (en radians)
     const segmentAngle = (2 * Math.PI - numberOfSegments * gapAngle) / numberOfSegments;
     
     return (
       <div className="flex flex-col items-center">
-        <div className="relative w-40 h-40">
-          <svg className="w-40 h-40" viewBox="0 0 160 160">
-            {/* Créer 6 arcs formant un cercle */}
-            {Array.from({ length: numberOfSegments }, (_, index) => {
+        {/* Version mobile */}
+        <div className="relative w-28 h-28 lg:hidden">
+          <svg className="w-28 h-28" viewBox="0 0 112 112">
+            {/* Créer 6 arcs formant un cercle - mobile */}
+            {Array.from({ length: 6 }, (_, index) => {
               const startAngle = index * (segmentAngle + gapAngle) - Math.PI / 2; // Commencer en haut
               const endAngle = startAngle + segmentAngle;
               const isActive = index < value;
               const segmentColor = isActive ? color : '#E5E7EB';
               
-              const arcPath = createArcPath(centerX, centerY, radius, startAngle, endAngle);
+              const arcPath = createArcPath(centerX.mobile, centerY.mobile, radius.mobile, startAngle, endAngle);
               
               return (
                 <path
                   key={index}
                   d={arcPath}
                   stroke={segmentColor}
-                  strokeWidth={strokeWidth}
+                  strokeWidth={strokeWidth.mobile}
                   strokeLinecap="round"
                   fill="none"
                   className={`transition-colors duration-300 ${isAnimating && isActive ? 'opacity-80' : ''}`}
@@ -136,7 +139,44 @@ const PollutionIndicators = ({ globalIndex, sousIndices }: PollutionIndicatorsPr
             })}
           </svg>
           
-          {/* Texte au centre */}
+          {/* Texte au centre - mobile */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span 
+              className={`text-sm font-bold ${isAnimating && value < targetValue ? 'scale-110' : ''} transition-transform duration-300`}
+              style={{ color: value > 0 ? color : '#9CA3AF' }}
+            >
+              {label === 'GLOBAL' ? value || '-' : label}
+            </span>
+          </div>
+        </div>
+
+        {/* Version desktop - inchangée */}
+        <div className="relative w-40 h-40 hidden lg:block">
+          <svg className="w-40 h-40" viewBox="0 0 160 160">
+            {/* Créer 6 arcs formant un cercle - desktop */}
+            {Array.from({ length: 6 }, (_, index) => {
+              const startAngle = index * (segmentAngle + gapAngle) - Math.PI / 2; // Commencer en haut
+              const endAngle = startAngle + segmentAngle;
+              const isActive = index < value;
+              const segmentColor = isActive ? color : '#E5E7EB';
+              
+              const arcPath = createArcPath(centerX.desktop, centerY.desktop, radius.desktop, startAngle, endAngle);
+              
+              return (
+                <path
+                  key={index}
+                  d={arcPath}
+                  stroke={segmentColor}
+                  strokeWidth={strokeWidth.desktop}
+                  strokeLinecap="round"
+                  fill="none"
+                  className={`transition-colors duration-300 ${isAnimating && isActive ? 'opacity-80' : ''}`}
+                />
+              );
+            })}
+          </svg>
+          
+          {/* Texte au centre - desktop */}
           <div className="absolute inset-0 flex items-center justify-center">
             <span 
               className={`text-lg font-bold ${isAnimating && value < targetValue ? 'scale-110' : ''} transition-transform duration-300`}
@@ -151,23 +191,46 @@ const PollutionIndicators = ({ globalIndex, sousIndices }: PollutionIndicatorsPr
   };
 
   return (
-    <div className="flex flex-wrap justify-center gap-8 mb-8">
-      {/* Indice global */}
-      <CircularIndicator
-        label="GLOBAL"
-        value={animatedValues['global'] || 0}
-        targetValue={globalIndex}
-      />
-      
-      {/* Sous-indices */}
-      {sousIndices.map((sousIndice) => (
+    <div>
+      {/* Version mobile - grille 3x2 */}
+      <div className="lg:hidden grid grid-cols-3 gap-4 justify-items-center mb-8 max-w-sm mx-auto">
+        {/* Indice global */}
         <CircularIndicator
-          key={sousIndice.polluant_nom}
-          label={sousIndice.polluant_nom}
-          value={animatedValues[sousIndice.polluant_nom] || 0}
-          targetValue={sousIndice.indice}
+          label="GLOBAL"
+          value={animatedValues['global'] || 0}
+          targetValue={globalIndex}
         />
-      ))}
+        
+        {/* Sous-indices */}
+        {sousIndices.map((sousIndice) => (
+          <CircularIndicator
+            key={sousIndice.polluant_nom}
+            label={sousIndice.polluant_nom}
+            value={animatedValues[sousIndice.polluant_nom] || 0}
+            targetValue={sousIndice.indice}
+          />
+        ))}
+      </div>
+
+      {/* Version desktop - inchangée */}
+      <div className="hidden lg:flex flex-wrap justify-center gap-8 mb-8">
+        {/* Indice global */}
+        <CircularIndicator
+          label="GLOBAL"
+          value={animatedValues['global'] || 0}
+          targetValue={globalIndex}
+        />
+        
+        {/* Sous-indices */}
+        {sousIndices.map((sousIndice) => (
+          <CircularIndicator
+            key={sousIndice.polluant_nom}
+            label={sousIndice.polluant_nom}
+            value={animatedValues[sousIndice.polluant_nom] || 0}
+            targetValue={sousIndice.indice}
+          />
+        ))}
+      </div>
     </div>
   );
 };

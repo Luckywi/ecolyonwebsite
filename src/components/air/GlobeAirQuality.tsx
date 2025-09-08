@@ -1,7 +1,7 @@
 // src/components/landing/GlobeAirQuality.tsx
 "use client";
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import createGlobe from 'cobe';
 
 interface GlobeAirQualityProps {
@@ -12,6 +12,10 @@ interface GlobeAirQualityProps {
 const GlobeAirQuality = ({ qualityColor, globalIndex }: GlobeAirQualityProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const globeRef = useRef<any>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const intersectionObserverRef = useRef<IntersectionObserver | null>(null);
+  const pauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Coordonnées de Lyon
   const LYON_COORDINATES = {
@@ -28,6 +32,47 @@ const GlobeAirQuality = ({ qualityColor, globalIndex }: GlobeAirQualityProps) =>
   };
 
   const [lyonPhi, lyonTheta] = locationToAngles(LYON_COORDINATES.lat, LYON_COORDINATES.lng);
+
+  // Observer la visibilité du globe
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    intersectionObserverRef.current = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+        
+        if (!entry.isIntersecting) {
+          // Pause après 3 secondes hors viewport
+          pauseTimeoutRef.current = setTimeout(() => {
+            setIsPaused(true);
+          }, 3000);
+        } else {
+          // Reprendre immédiatement quand visible
+          if (pauseTimeoutRef.current) {
+            clearTimeout(pauseTimeoutRef.current);
+            pauseTimeoutRef.current = null;
+          }
+          setIsPaused(false);
+        }
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '100px'
+      }
+    );
+
+    intersectionObserverRef.current.observe(canvas);
+
+    return () => {
+      if (intersectionObserverRef.current) {
+        intersectionObserverRef.current.disconnect();
+      }
+      if (pauseTimeoutRef.current) {
+        clearTimeout(pauseTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     let phi = 0;
@@ -46,7 +91,7 @@ const GlobeAirQuality = ({ qualityColor, globalIndex }: GlobeAirQualityProps) =>
         theta: 0.3,
         dark: 0,
         diffuse: 1.2,
-        mapSamples: 16000,
+        mapSamples: 4000, // Optimisé à 4000 pour de meilleures performances
         mapBrightness: 1,
       baseColor: [0.973, 0.969, 0.957],
         markerColor: [1, 1, 1],
@@ -60,8 +105,13 @@ const GlobeAirQuality = ({ qualityColor, globalIndex }: GlobeAirQualityProps) =>
           }
         ],
         onRender: (state: any) => {
-          // Rotation automatique lente
-          phi += 0.005;
+          // Ne pas animer si hors viewport ou en pause
+          if (!isVisible || isPaused) {
+            return;
+          }
+          
+          // Rotation automatique plus lente pour économiser les ressources
+          phi += 0.003; // Réduit de 0.005 à 0.003
           state.phi = phi;
           
           // Mise à jour de la couleur du marqueur en temps réel
@@ -84,7 +134,7 @@ const GlobeAirQuality = ({ qualityColor, globalIndex }: GlobeAirQualityProps) =>
       }
       window.removeEventListener('resize', onResize);
     };
-  }, [qualityColor, globalIndex, lyonPhi, lyonTheta]);
+  }, [qualityColor, globalIndex, lyonPhi, lyonTheta, isVisible, isPaused, LYON_COORDINATES.lat, LYON_COORDINATES.lng]);
 
   // Fonction pour obtenir le texte de qualité
   const getQualityText = (index: number) => {
@@ -101,8 +151,8 @@ const GlobeAirQuality = ({ qualityColor, globalIndex }: GlobeAirQualityProps) =>
 
   return (
     <div className="relative">
-      {/* Globe */}
-      <div className="relative mx-auto aspect-square w-full max-w-[400px]">
+      {/* Globe - Container 2x plus petit en mobile */}
+      <div className="relative mx-auto aspect-square w-full max-w-[100px] lg:max-w-[400px]">
         <canvas
           ref={canvasRef}
           className="h-full w-full opacity-90"
@@ -114,46 +164,46 @@ const GlobeAirQuality = ({ qualityColor, globalIndex }: GlobeAirQualityProps) =>
           }}
         />
         
-        {/* Overlay avec informations */}
+        {/* Overlay avec informations - responsive */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="text-center /80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-gray-200">
-            <div className="flex items-center justify-center gap-3 mb-2">
+          <div className="text-center backdrop-blur-sm rounded-md lg:rounded-xl p-1.5 lg:p-4 shadow-lg border border-gray-200 max-w-[80px] lg:max-w-none">
+            <div className="flex items-center justify-center gap-1 lg:gap-3 mb-0.5 lg:mb-2">
               <div 
-                className="w-4 h-4 rounded-full border border-gray-300"
+                className="w-1.5 h-1.5 lg:w-4 lg:h-4 rounded-full border border-gray-300"
                 style={{ backgroundColor: qualityColor }}
               />
-              <span className="font-semibold text-gray-800">Lyon</span>
+              <span className="font-semibold text-gray-800 text-[10px] lg:text-base">Lyon</span>
             </div>
             
-            <div className="text-sm text-gray-600">
+            <div className="text-[8px] lg:text-sm text-gray-600 leading-tight">
               Qualité d&apos;air : {getQualityText(globalIndex)}
             </div>
             
-            <div className="text-xs text-gray-500 mt-1">
+            <div className="text-[8px] text-gray-500 mt-0.5 lg:mt-1">
               Indice {globalIndex}/6
             </div>
           </div>
         </div>
       </div>
 
-      {/* Légende */}
-      <div className="mt-6 text-center">
-        <p className="text-sm text-gray-600 mb-3">
+      {/* Légende - responsive */}
+      <div className="mt-2 lg:mt-6 text-center">
+        <p className="text-[10px] lg:text-sm text-gray-600 mb-1.5 lg:mb-3 px-1">
           Le point sur Lyon reflète la qualité de l&apos;air en temps réel
         </p>
         
-        {/* Échelle de couleurs */}
-        <div className="flex justify-center items-center gap-2 text-xs">
-          <span className="text-gray-500">Échelle ATMO :</span>
-          <div className="flex gap-1">
-            <div className="w-3 h-3 rounded-full bg-[#50F0E6]" title="Très bon"></div>
-            <div className="w-3 h-3 rounded-full bg-[#50CCAA]" title="Bon"></div>
-            <div className="w-3 h-3 rounded-full bg-[#F0E641]" title="Moyen"></div>
-            <div className="w-3 h-3 rounded-full bg-[#FF5050]" title="Mauvais"></div>
-            <div className="w-3 h-3 rounded-full bg-[#960032]" title="Très mauvais"></div>
-            <div className="w-3 h-3 rounded-full bg-[#872181]" title="Extrêmement mauvais"></div>
+        {/* Échelle de couleurs - mobile optimisée */}
+        <div className="flex flex-col lg:flex-row justify-center items-center gap-1 lg:gap-2 text-xs">
+          <span className="text-gray-500 text-[10px] lg:text-xs">Échelle ATMO :</span>
+          <div className="flex gap-0.5 lg:gap-1">
+            <div className="w-1.5 h-1.5 lg:w-3 lg:h-3 rounded-full bg-[#50F0E6]" title="Très bon"></div>
+            <div className="w-1.5 h-1.5 lg:w-3 lg:h-3 rounded-full bg-[#50CCAA]" title="Bon"></div>
+            <div className="w-1.5 h-1.5 lg:w-3 lg:h-3 rounded-full bg-[#F0E641]" title="Moyen"></div>
+            <div className="w-1.5 h-1.5 lg:w-3 lg:h-3 rounded-full bg-[#FF5050]" title="Mauvais"></div>
+            <div className="w-1.5 h-1.5 lg:w-3 lg:h-3 rounded-full bg-[#960032]" title="Très mauvais"></div>
+            <div className="w-1.5 h-1.5 lg:w-3 lg:h-3 rounded-full bg-[#872181]" title="Extrêmement mauvais"></div>
           </div>
-          <span className="text-gray-500">1→6</span>
+          <span className="text-gray-500 text-[10px] lg:text-xs">1→6</span>
         </div>
       </div>
     </div>

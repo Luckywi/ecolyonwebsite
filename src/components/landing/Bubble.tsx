@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
-import { motion, useMotionValue, useTransform, PanInfo, MotionValue } from 'framer-motion';
+import { motion, useMotionValue, useTransform, MotionValue } from 'framer-motion';
 
 interface BubbleData {
   id: number;
@@ -28,15 +28,15 @@ const options: BubbleUIOptions = {
   fringeWidth: 160,
 };
 
-const GalaxyBubble = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  
-  // Pan values for infinite scroll
-  const panX = useMotionValue(0);
-  const panY = useMotionValue(0);
+const mobileOptions: BubbleUIOptions = {
+  size: 55,
+  minSize: 15,
+  gutter: 10,
+  centerRadius: 90,
+  fringeWidth: 120,
+};
 
-  // Base 9 icons that will repeat infinitely
-  const baseIcons: Omit<BubbleData, 'gridX' | 'gridY' | 'id'>[] = [
+ const baseIcons: Omit<BubbleData, 'gridX' | 'gridY' | 'id'>[] = [
     { logoPath: '/logos/banc.png', alt: 'Bancs publics' },
     { logoPath: '/logos/borne.png', alt: 'Bornes électriques' },
     { logoPath: '/logos/compost.png', alt: 'Compost' },
@@ -47,6 +47,19 @@ const GalaxyBubble = () => {
     { logoPath: '/logos/SIlos.png', alt: 'Tri sélectif' },
     { logoPath: '/logos/wc.png', alt: 'Toilettes publiques' },
   ];
+
+const GalaxyBubble = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  // Pan values for infinite scroll
+  const panX = useMotionValue(0);
+  const panY = useMotionValue(0);
+  
+  // Determine if we're on mobile - using a simple approach
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
+  const currentOptions = isMobile ? mobileOptions : options;
+
+  // Base 9 icons that will repeat infinitely
 
   // Generate infinite hexagonal grid with repeating icons
   const generateInfiniteHexGrid = useCallback((radius: number = 12): BubbleData[] => {
@@ -79,8 +92,8 @@ const GalaxyBubble = () => {
   const bubbleData = generateInfiniteHexGrid(12);
 
   // Infinite loop effect - reset position when reaching boundaries
-  const handleDrag = useCallback((_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    const spacing = options.size + options.gutter;
+  const handleDrag = useCallback(() => {
+    const spacing = currentOptions.size + currentOptions.gutter;
     const maxDistance = spacing * 8; // Distance before reset
     
     const currentX = panX.get();
@@ -95,15 +108,15 @@ const GalaxyBubble = () => {
       panX.set(resetX);
       panY.set(resetY);
     }
-  }, [panX, panY]);
+  }, [panX, panY, currentOptions]);
 
   // Convert hex grid coordinates to pixel coordinates
   const hexToPixel = useCallback((gridX: number, gridY: number) => {
-    const spacing = options.size + options.gutter;
+    const spacing = currentOptions.size + currentOptions.gutter;
     const x = spacing * (gridX * 0.75);
     const y = spacing * (gridY + (gridX % 2) * 0.5) * (Math.sqrt(3) / 2);
     return { x, y };
-  }, []);
+  }, [currentOptions]);
 
   // Calculate distance from center and determine bubble scale
   const getBubbleScale = useCallback((bubbleX: number, bubbleY: number, panXVal: number, panYVal: number) => {
@@ -111,16 +124,16 @@ const GalaxyBubble = () => {
     const centerY = bubbleY + panYVal;
     const distance = Math.sqrt(centerX * centerX + centerY * centerY);
     
-    if (distance <= options.centerRadius) {
+    if (distance <= currentOptions.centerRadius) {
       return 1;
-    } else if (distance <= options.centerRadius + options.fringeWidth) {
-      const progress = (distance - options.centerRadius) / options.fringeWidth;
+    } else if (distance <= currentOptions.centerRadius + currentOptions.fringeWidth) {
+      const progress = (distance - currentOptions.centerRadius) / currentOptions.fringeWidth;
       const easedProgress = 1 - Math.pow(1 - progress, 3);
-      return 1 - easedProgress * (1 - options.minSize / options.size);
+      return 1 - easedProgress * (1 - currentOptions.minSize / currentOptions.size);
     } else {
-      return options.minSize / options.size;
+      return currentOptions.minSize / currentOptions.size;
     }
-  }, []);
+  }, [currentOptions]);
 
   // Initialize position
   useEffect(() => {
@@ -129,10 +142,10 @@ const GalaxyBubble = () => {
   }, [panX, panY]);
 
   return (
-    <section className="flex items-center justify-center py-8 bg-[#F8F7F4]">
+    <section className="hidden lg:flex items-center justify-center py-6 lg:py-8 bg-[#F8F7F4]">
       <motion.div
         ref={containerRef}
-        className="relative w-[350px] h-[350px] sm:w-[450px] sm:h-[320px] lg:w-[550px] lg:h-[350px] overflow-hidden"
+        className="relative w-[280px] h-[280px] sm:w-[350px] sm:h-[350px] md:w-[400px] md:h-[320px] lg:w-[550px] lg:h-[350px] overflow-hidden"
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
@@ -172,7 +185,7 @@ const GalaxyBubble = () => {
                   panX={panX}
                   panY={panY}
                   getBubbleScale={getBubbleScale}
-                  options={options}
+                  options={currentOptions}
                 />
               );
             })}

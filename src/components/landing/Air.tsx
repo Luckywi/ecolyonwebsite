@@ -18,16 +18,24 @@ interface AirQualityData {
   }[];
 }
 
+  const qualityOptions = [
+    { name: 'Bon', color: '#50F0E6' },
+    { name: 'Moyen', color: '#50CCAA' },
+    { name: 'Dégradé', color: '#F0E641' },
+    { name: 'Mauvais', color: '#FF5050' },
+    { name: 'Très mauvais', color: '#960032' },
+    { name: 'Extrêmement mauvais', color: '#872181' }
+  ];
+
 const Air = () => {
   const [currentQuality, setCurrentQuality] = useState('');
   const [currentColor, setCurrentColor] = useState('#000000');
-  const [realQuality, setRealQuality] = useState('');
-  const [realColor, setRealColor] = useState('#000000');
   const [globalIndex, setGlobalIndex] = useState(0);
   const [sousIndices, setSousIndices] = useState<SousIndice[]>([]);
   const [isAnimating, setIsAnimating] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  // Plus besoin de state isMobile - détection directe
 
   // Fonction pour adapter le texte côté frontend
   const getFriendlyText = (quality: string) => {
@@ -49,17 +57,11 @@ const Air = () => {
     }
   };
 
-  // Toutes les qualités possibles avec leurs couleurs officielles
-  const qualityOptions = [
-    { name: 'Bon', color: '#50F0E6' },
-    { name: 'Moyen', color: '#50CCAA' },
-    { name: 'Dégradé', color: '#F0E641' },
-    { name: 'Mauvais', color: '#FF5050' },
-    { name: 'Très mauvais', color: '#960032' },
-    { name: 'Extrêmement mauvais', color: '#872181' }
-  ];
+  // Toutes les qualités possibles avec leurs couleurs officielle
 
   // Fonction pour récupérer les données de l'API
+  useEffect(() => {
+
   const fetchAirQuality = async () => {
     try {
       const response = await fetch(
@@ -78,23 +80,34 @@ const Air = () => {
         const globalIndexValue = data.data[0].indice;
         const sousIndicesValue = data.data[0].sous_indices || [];
         
-        setRealQuality(realQualityValue);
-        setRealColor(realColorValue);
+       
         setGlobalIndex(globalIndexValue);
         setSousIndices(sousIndicesValue);
         setLoading(false);
         
-        // Démarrer l'animation après avoir défini les vraies valeurs
-        startAnimation(realQualityValue, realColorValue);
+        // Décision mobile vs desktop
+        const currentIsMobile = window.innerWidth < 768;
+        if (currentIsMobile) {
+          console.log('📱 Mode mobile - affichage direct');
+          // Mobile : affichage direct
+          setCurrentQuality(realQualityValue);
+          setCurrentColor(realColorValue);
+          setIsAnimating(false);
+        } else {
+          console.log('🖥️ Mode desktop - démarrage animation');
+          // Desktop : animation
+          startAnimation(realQualityValue, realColorValue);
+        }
       } else {
         throw new Error('Aucune donnée disponible');
       }
-    } catch (err) {
-      console.error('Erreur:', err);
+    } catch (error) {
+      console.error('Erreur lors du chargement de la qualité de l\'air:', error);
       setError('Impossible de récupérer les données de qualité de l\'air');
       setLoading(false);
     }
   };
+
 
   // Animation de compteur
   const startAnimation = (finalQuality: string, finalColor: string) => {
@@ -115,16 +128,16 @@ const Air = () => {
       setIsAnimating(false);
     }, 3000);
   };
-
-  useEffect(() => {
     fetchAirQuality();
-  }, []);
+  }, []); // Une seule fois au montage
+
+  // Pas besoin d'effet séparé - tout est géré dans fetchAirQuality
 
   if (loading) {
     return (
-      <section className="py-8 px-4 sm:px-6 lg:px-8 bg-[#F8F7F4]">
+      <section className="py-6 lg:py-8 px-4 sm:px-6 lg:px-8 bg-[#F8F7F4]">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="text-xl sm:text-2xl lg:text-3xl font-light text-black">
+          <p className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-light text-black">
             Chargement des données de qualité de l&apos;air...
           </p>
         </div>
@@ -134,9 +147,9 @@ const Air = () => {
 
   if (error) {
     return (
-      <section className="py-8 px-4 sm:px-6 lg:px-8 bg-[#F8F7F4]">
+      <section className="py-6 lg:py-8 px-4 sm:px-6 lg:px-8 bg-[#F8F7F4]">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="text-xl sm:text-2xl lg:text-3xl font-light text-red-500">
+          <p className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-light text-red-500">
             {error}
           </p>
         </div>
@@ -145,10 +158,10 @@ const Air = () => {
   }
 
   return (
-    <section className="py-8 px-4 sm:px-6 lg:px-8 bg-[#F8F7F4]">
+    <section className="py-6 lg:py-8 px-4 sm:px-6 lg:px-8 bg-[#F8F7F4]">
       <div className="max-w-6xl mx-auto text-center">
         {/* Phrase de qualité de l'air */}
-        <p className="text-xl sm:text-2xl lg:text-3xl font-light text-black mb-12">
+        <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-light text-black mb-8 lg:mb-12 leading-relaxed px-2">
           Aujourd&apos;hui à Lyon la qualité de l&apos;air est{' '}
           <span 
             className={`font-medium transition-all duration-300 ${isAnimating ? 'animate-pulse' : ''}`}
@@ -169,5 +182,6 @@ const Air = () => {
     </section>
   );
 };
+
 
 export default Air;

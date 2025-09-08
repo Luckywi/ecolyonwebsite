@@ -49,9 +49,9 @@ const Infra = () => {
   }, [totalCount, isLoading]);
 
   return (
-    <section className="py-8 px-4 sm:px-6 lg:px-8 bg-[#F8F7F4]">
+    <section className="py-6 lg:py-8 px-4 sm:px-6 lg:px-8 bg-[#F8F7F4]">
       <div className="max-w-6xl mx-auto text-center">
-        <p className="text-xl sm:text-2xl lg:text-3xl font-light text-black">
+        <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-light text-black leading-relaxed px-2">
           EcoLyon géolocalise{' '}
           <span 
             className={`font-medium transition-all duration-300 ${isAnimating ? 'animate-pulse' : ''}`}

@@ -20,6 +20,65 @@ export const metadata: Metadata = {
   },
   description: 'Découvrez la qualité de l\'air, les infrastructures écologiques et le compostage à Lyon. Application mobile pour une ville plus verte.',
   keywords: ['Lyon', 'écologie', 'qualité air', 'compost', 'infrastructure', 'environnement'],
+  authors: [{ name: 'EcoLyon' }],
+  creator: 'EcoLyon',
+  publisher: 'EcoLyon',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL('https://ecolyon.fr'),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: 'EcoLyon - Lyon connectée à son environnement',
+    description: 'Découvrez la qualité de l\'air, les infrastructures écologiques et le compostage à Lyon. Application mobile pour une ville plus verte.',
+    url: 'https://ecolyon.fr',
+    siteName: 'EcoLyon',
+    images: [
+      {
+        url: '/icons/LYON.png',
+        width: 480,
+        height: 480,
+        alt: 'EcoLyon - Lyon connectée à son environnement',
+      }
+    ],
+    locale: 'fr_FR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'app',
+    title: 'EcoLyon - Lyon connectée à son environnement',
+    description: 'Découvrez la qualité de l\'air, les infrastructures écologiques et le compostage à Lyon. Application mobile pour une ville plus verte.',
+    app: {
+      name: 'EcoLyon',
+      id: {
+        iphone: '6747041717',
+        ipad: '6747041717',
+      },
+      url: {
+        iphone: 'https://apps.apple.com/app/id6747041717',
+        ipad: 'https://apps.apple.com/app/id6747041717',
+      }
+    }
+  },
+  icons: {
+    icon: [
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon.ico', sizes: '32x32', type: 'image/x-icon' }
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }
+    ],
+    shortcut: '/favicon.ico',
+  },
+  manifest: '/manifest.json',
+  other: {
+    'apple-itunes-app': 'app-id=6747041717'
+  }
 }
 
 export default function RootLayout({
@@ -29,6 +88,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr" className={roboto.variable}>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </head>
       <body className={`${roboto.className} bg-[#F8F7F4] antialiased`}>
         <Header />
         <main className="min-h-screen">

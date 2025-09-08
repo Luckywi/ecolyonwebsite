@@ -1,233 +1,46 @@
 // src/app/infrastructure/fontaines/page.tsx
-"use client";
+import { Metadata } from 'next'
+import FontainesClient from './FontainesClient'
+import SchemaHead from '@/components/schema/SchemaHead'
 
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import Image from 'next/image';
-import Link from 'next/link';
-import { ShinyButton } from '@/components/magicui/shiny-button';
-import StepCarousel, { Step } from '@/components/infrastructure/StepCarousel';
-import Dock from '@/components/infrastructure/Dock';
-
-interface WFSResponse {
- type: string;
- features: Array<{
-   type: string;
- }>;
- totalFeatures?: number;
- numberMatched?: number;
- numberReturned?: number;
+export const metadata: Metadata = {
+  title: 'Fontaines d\'eau potable - EcoLyon',
+  description: 'Trouvez toutes les fontaines d\'eau potable du Grand Lyon. Géolocalisez la fontaine la plus proche et naviguez vers elle grâce à l\'app EcoLyon. De l\'eau potable gratuite partout !',
+  openGraph: {
+    title: 'Fontaines d\'eau potable | EcoLyon',
+    description: 'Trouvez toutes les fontaines d\'eau potable du Grand Lyon. Géolocalisez la fontaine la plus proche et naviguez vers elle grâce à l\'app EcoLyon. De l\'eau potable gratuite partout !',
+    images: [
+      {
+        url: '/logos/Fontaine.png',
+        width: 512,
+        height: 512,
+        alt: 'Fontaines d\'eau potable à Lyon',
+      }
+    ],
+  },
+  twitter: {
+    card: 'app',
+    title: 'Fontaines d\'eau potable | EcoLyon',
+    description: 'Trouvez toutes les fontaines d\'eau potable du Grand Lyon. Géolocalisez la fontaine la plus proche et naviguez vers elle grâce à l\'app EcoLyon. De l\'eau potable gratuite partout !',
+    app: {
+      name: 'EcoLyon',
+      id: {
+        iphone: '6747041717',
+        ipad: '6747041717',
+      },
+      url: {
+        iphone: 'https://apps.apple.com/app/id6747041717',
+        ipad: 'https://apps.apple.com/app/id6747041717',
+      }
+    }
+  },
 }
 
 export default function FontainesPage() {
- const [fontainesCount, setFontainesCount] = useState(0);
- const [loading, setLoading] = useState(true);
- const [error, setError] = useState('');
-
- // Configuration des étapes pour les fontaines
- const fontainesSteps: Step[] = [
-   {
-     id: 1,
-     title: "Ouvrez l'app EcoLyon",
-     image: "/images/Home.png",
-     description: "Lancez l'application EcoLyon sur votre téléphone"
-   },
-   {
-     id: 2,
-     title: "Accédez au menu",
-     image: "/images/Menu.png",
-     description: "Appuyez sur le menu pour voir toutes les fonctionnalités"
-   },
-   {
-     id: 3,
-     title: "Trouvez la fontaine la plus proche",
-     image: "/images/Fontaines/Fontaines.png",
-     description: "Localisez toutes les fontaines et points d'eau potable autour de vous"
-   },
-   {
-     id: 4,
-     title: "Lancez la navigation",
-     image: "/images/Fontaines/StartNav.png",
-     description: "Cliquez sur la fontaine choisie pour lancer la navigation"
-   },
-   {
-     id: 5,
-     title: "Démarrez la navigation",
-     image: "/images/Fontaines/Nav.png",
-     description: "Lancez le GPS pour vous rendre à la fontaine sélectionnée"
-   }
- ];
-
- // Récupérer le nombre de fontaines depuis l'API Grand Lyon
- useEffect(() => {
-   const fetchFontainesCount = async () => {
-     try {
-       setLoading(true);
-       
-       // URL de l'API pour les bornes fontaines du Grand Lyon
-       const response = await fetch(
-         'https://data.grandlyon.com/geoserver/metropole-de-lyon/ows?SERVICE=WFS&VERSION=2.0.0&request=GetFeature&typename=metropole-de-lyon:adr_voie_lieu.adrbornefontaine_latest&outputFormat=application/json&SRSNAME=EPSG:4171&count=1'
-       );
-       
-       if (!response.ok) {
-         throw new Error('Erreur lors de la récupération des données');
-       }
-       
-       const data: WFSResponse = await response.json();
-       const count = data.totalFeatures || data.numberMatched || data.features?.length || 0;
-       
-       setFontainesCount(count);
-     } catch (err) {
-       console.error('Erreur:', err);
-       setError('Impossible de récupérer le nombre de fontaines');
-     } finally {
-       setLoading(false);
-     }
-   };
-
-   fetchFontainesCount();
- }, []);
-
- return (
-   <div className="min-h-screen bg-[#F8F7F4] py-8 px-4 sm:px-6 lg:px-8">
-     <div className="max-w-4xl mx-auto">
-       
-       {/* Navigation de retour */}
-       <motion.div 
-         className="mb-8"
-         initial={{ opacity: 0, x: -20 }}
-         animate={{ opacity: 1, x: 0 }}
-         transition={{ duration: 0.5 }}
-       >
-         <Link
-           href="/infrastructure"
-           className="inline-flex items-center gap-2 text-black hover:text-ecolyon-green transition-colors group"
-         >
-           <Image
-             src="/icons/arrowright.svg"
-             alt=""
-             width={20}
-             height={20}
-             className="w-5 h-5 rotate-180 back-link-arrow"
-           />
-           <span className="font-medium">Retour aux infrastructures</span>
-         </Link>
-       </motion.div>
-
-       {/* Icône fontaine en grand */}
-       <motion.div 
-         className="flex justify-center mb-8"
-         initial={{ opacity: 0, scale: 0.8 }}
-         animate={{ opacity: 1, scale: 1 }}
-         transition={{ duration: 0.6 }}
-       >
-         <div className="w-32 h-32 relative">
-           <Image
-             src="/logos/Fontaine.png"
-             alt="Fontaines et points d'eau potable"
-             fill
-             className="object-contain"
-             sizes="190px"
-           />
-         </div>
-       </motion.div>
-
-       {/* Titre avec compteur */}
-       <motion.div 
-         className="text-center mb-12"
-         initial={{ opacity: 0, y: 20 }}
-         animate={{ opacity: 1, y: 0 }}
-         transition={{ duration: 0.6, delay: 0.2 }}
-       >
-         {loading ? (
-           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-black">
-             Chargement du nombre de fontaines...
-           </h1>
-         ) : error ? (
-           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-red-500">
-             {error}
-           </h1>
-         ) : (
-           <>
-             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-black">
-               Fontaines :{' '}
-               <span 
-                 className="font-medium"
-                 style={{ color: '#46952C' }}
-               >
-                 {fontainesCount.toLocaleString()}
-               </span>
-               {' '}dans le Grand Lyon
-             </h1>
-             
-             {/* Description */}
-             <motion.p 
-               className="text-base sm:text-lg text-gray-700 leading-relaxed mt-8 max-w-3xl mx-auto"
-               initial={{ opacity: 0, y: 15 }}
-               animate={{ opacity: 1, y: 0 }}
-               transition={{ duration: 0.6, delay: 0.4 }}
-             >
-               Journée de forte chaleur, balade qui s&apos;éternise, sortie improvisée... Vous et vos animaux avez besoin d&apos;eau ? 
-               Pas besoin d&apos;acheter une bouteille en plastique ! Votre gourde et l&apos;app EcoLyon suffisent pour localiser 
-               la fontaine d&apos;eau potable la plus proche en quelques secondes.
-               <span className="font-medium text-ecolyon-green"> <br></br>De l&apos;eau potable gratuite partout dans le Grand Lyon !</span>
-             </motion.p>
-           </>
-         )}
-       </motion.div>
-
-       {/* Carrousel des étapes */}
-       {!loading && !error && (
-         <motion.div 
-           className="mb-16"
-           initial={{ opacity: 0, y: 30 }}
-           animate={{ opacity: 1, y: 0 }}
-           transition={{ duration: 0.8, delay: 0.4 }}
-         >
-           <StepCarousel steps={fontainesSteps} />
-           
-           {/* Bouton CTA */}
-           <div className="flex justify-center mt-12 mb-16">
-             <ShinyButton 
-               className="bg-ecolyon-green hover:bg-ecolyon-green-dark text-white px-8 py-4 rounded-xl font-medium text-base shadow-lg hover:shadow-xl border-ecolyon-green"
-               style={{ 
-                 '--primary': '#46952C',
-                 backgroundImage: 'linear-gradient(135deg, #46952C 0%, #3a7a23 100%)'
-               } as React.CSSProperties}
-             >
-               <div className="flex items-center gap-3">
-                 <svg 
-                   className="w-5 h-5" 
-                   viewBox="0 0 24 24" 
-                   fill="currentColor"
-                 >
-                   <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-                 </svg>
-                 Télécharger l&apos;app EcoLyon
-               </div>
-             </ShinyButton>
-           </div>
-           
-           {/* Texte explicatif du dock */}
-           <div className="text-center mt-6">
-             <p className="text-gray-600 text-text-base">
-               Découvrez les autres fonctionnalités d&apos;EcoLyon
-             </p>
-             <br></br>
-           </div>
-
-             <div className="flex justify-center">
-             <Dock 
-               excludeId="fontaines"
-               className="max-w-3xl"
-             />
-           </div>
-           
-         </motion.div>
-         
-         
-       )}
-     </div>
-   </div>
- );
+  return (
+    <>
+      <SchemaHead />
+      <FontainesClient />
+    </>
+  )
 }

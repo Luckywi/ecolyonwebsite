@@ -17,6 +17,7 @@ interface DockProps {
   items?: DockItem[];
   excludeId?: string; // ID de l'infrastructure à exclure (page courante)
   className?: string;
+  isHomePage?: boolean; // Nouveau prop pour identifier la page d'accueil
 }
 
 interface DockItemProps {
@@ -25,13 +26,26 @@ interface DockItemProps {
   index: number;
 }
 
-const DockItem = ({ item, mouseX, index }: DockItemProps) => {
+const DockItem = ({ item, mouseX }: DockItemProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const [hovered, setHovered] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const distance = useRef(0);
   const widthSync = useRef(60);
   const heightSync = useRef(60);
+
+  // Détecter si on est sur mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(typeof window !== 'undefined' && window.innerWidth < 1024);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     const el = ref.current;
@@ -43,21 +57,50 @@ const DockItem = ({ item, mouseX, index }: DockItemProps) => {
     
     distance.current = distanceFromMouse;
 
-    // Calcul de la taille basé sur la distance de la souris
-    const maxDistance = 150;
-    const maxScale = 80;
-    const minScale = 60;
-    
-    if (distanceFromMouse < maxDistance) {
-      const scale = maxScale - (distanceFromMouse / maxDistance) * (maxScale - minScale);
-      widthSync.current = scale;
-      heightSync.current = scale;
+    if (isMobile) {
+      // Mobile: taille fixe, pas d'interaction souris
+      widthSync.current = 50;
+      heightSync.current = 50;
     } else {
-      widthSync.current = minScale;
-      heightSync.current = minScale;
+      // Desktop: original mouse interaction
+      const maxDistance = 150;
+      const maxScale = 80;
+      const minScale = 60;
+      
+      if (distanceFromMouse < maxDistance) {
+        const scale = maxScale - (distanceFromMouse / maxDistance) * (maxScale - minScale);
+        widthSync.current = scale;
+        heightSync.current = scale;
+      } else {
+        widthSync.current = minScale;
+        heightSync.current = minScale;
+      }
     }
-  }, [mouseX]);
+  }, [mouseX, isMobile]);
 
+  // Version mobile : div simple sans animations
+  if (isMobile) {
+    return (
+      <Link href={item.href}>
+        <div 
+          className="flex flex-col items-center justify-end cursor-pointer"
+          style={{ width: 50, height: 50 }}
+        >
+          <div className="relative w-full h-full">
+            <Image
+              src={item.icon}
+              alt={item.label}
+              fill
+              className="object-contain"
+              sizes="50px"
+            />
+          </div>
+        </div>
+      </Link>
+    );
+  }
+
+  // Version desktop : avec toutes les animations
   return (
     <Link href={item.href}>
       <motion.div
@@ -111,7 +154,7 @@ const DockItem = ({ item, mouseX, index }: DockItemProps) => {
 
         {/* Indicateur de selection (point en dessous) */}
         <motion.div
-          className="absolute -bottom-2 w-1 h-1  rounded-full"
+          className="absolute -bottom-2 w-1 h-1 rounded-full"
           initial={{ opacity: 0, scale: 0 }}
           animate={{ 
             opacity: hovered ? 1 : 0, 
@@ -124,7 +167,7 @@ const DockItem = ({ item, mouseX, index }: DockItemProps) => {
   );
 };
 
-export default function Dock({ items, excludeId, className = "" }: DockProps) {
+export default function Dock({ items, excludeId, className = "", isHomePage = false }: DockProps) {
   const [mouseX, setMouseX] = useState(0);
   const dockRef = useRef<HTMLDivElement>(null);
 
@@ -186,14 +229,14 @@ export default function Dock({ items, excludeId, className = "" }: DockProps) {
     }
   ];
 
-  // Filtrer les items selon excludeId et limiter à 8
+  // Filtrer les items selon excludeId et limiter selon le contexte
+  const maxItems = isHomePage ? 8 : 8; // 8 pour la page d'accueil, 8 pour les autres
   const displayItems = items || allInfrastructureItems
     .filter(item => item.id !== excludeId)
-    .slice(0, 8);
+    .slice(0, maxItems);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (dockRef.current) {
-      const rect = dockRef.current.getBoundingClientRect();
       setMouseX(e.clientX);
     }
   };
@@ -205,21 +248,40 @@ export default function Dock({ items, excludeId, className = "" }: DockProps) {
   return (
     <motion.div
       ref={dockRef}
-      className={`flex items-end justify-center gap-4 p-4 ${className}`}
+      className={`flex items-end justify-center gap-2 lg:gap-4 p-3 lg:p-4 ${className}`}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.2 }}
     >
-      {displayItems.map((item, index) => (
-        <DockItem
-          key={item.id}
-          item={item}
-          mouseX={mouseX}
-          index={index}
-        />
-      ))}
+      {/* Version mobile - grille adaptative */}
+      <div className={`lg:hidden grid gap-3 justify-items-center mx-auto ${
+        isHomePage 
+          ? 'grid-cols-4 max-w-sm' // Page d'accueil: 4 colonnes (2x4)
+          : 'grid-cols-3 max-w-xs'  // Autres pages: 3 colonnes
+      }`}>
+        {displayItems.map((item, index) => (
+          <DockItem
+            key={item.id}
+            item={item}
+            mouseX={0} // Pas d'interaction souris sur mobile
+            index={index}
+          />
+        ))}
+      </div>
+
+      {/* Version desktop - dock horizontal */}
+      <div className="hidden lg:flex items-end justify-center gap-4">
+        {displayItems.map((item, index) => (
+          <DockItem
+            key={item.id}
+            item={item}
+            mouseX={mouseX}
+            index={index}
+          />
+        ))}
+      </div>
     </motion.div>
   );
 }

@@ -1,8 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { motion, PanInfo, useMotionValue, useTransform } from 'framer-motion';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  type CarouselApi,
+} from '@/components/shadcn/carousel';
 
 export interface Step {
   id: number;
@@ -16,27 +21,12 @@ interface StepCarouselProps {
 }
 
 const StepCarousel = ({ steps }: StepCarouselProps) => {
+  const [api, setApi] = useState<CarouselApi>();
   const [currentStep, setCurrentStep] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  
-  const containerRef = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
 
   // Configuration
   const itemWidth = isMobile ? 280 : 320;
-  const DRAG_THRESHOLD = 50;
-  const VELOCITY_THRESHOLD = 300;
-
-  // Triple buffer pour boucle infinie parfaite
-  const extendedSteps = useMemo(() => [
-    steps[steps.length - 1], // Buffer début
-    ...steps,
-    steps[0], // Buffer fin
-  ], [steps]);
-
-  // Index réel dans le buffer (commence à 1)
-  const bufferIndex = currentStep + 1;
 
   // Détection mobile
   useEffect(() => {
@@ -45,6 +35,22 @@ const StepCarousel = ({ steps }: StepCarouselProps) => {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Écouter les changements du carousel
+  useEffect(() => {
+    if (!api) return;
+
+    const onSelect = () => {
+      setCurrentStep(api.selectedScrollSnap());
+    };
+
+    onSelect(); // Set initial state
+    api.on("select", onSelect);
+
+    return () => {
+      api.off("select", onSelect);
+    };
+  }, [api]);
 
   // Preload images intelligemment
   useEffect(() => {
@@ -66,98 +72,54 @@ const StepCarousel = ({ steps }: StepCarouselProps) => {
     preloadImages();
   }, [currentStep, steps]);
 
-  // Navigation
+  // Navigation simplifiée avec boucle manuelle
   const goToNext = useCallback(() => {
-    if (isTransitioning) return;
+    if (!api) return;
     
-    setIsTransitioning(true);
-    const nextStep = (currentStep + 1) % steps.length;
-    setCurrentStep(nextStep);
+    const nextIndex = currentStep === steps.length - 1 ? 0 : currentStep + 1;
+    api.scrollTo(nextIndex);
     
     // Feedback haptique
     if (isMobile && 'vibrate' in navigator) {
       navigator.vibrate(10);
     }
-  }, [currentStep, steps.length, isTransitioning, isMobile]);
+  }, [api, currentStep, steps.length, isMobile]);
 
   const goToPrev = useCallback(() => {
-    if (isTransitioning) return;
+    if (!api) return;
     
-    setIsTransitioning(true);
-    const prevStep = (currentStep - 1 + steps.length) % steps.length;
-    setCurrentStep(prevStep);
+    const prevIndex = currentStep === 0 ? steps.length - 1 : currentStep - 1;
+    api.scrollTo(prevIndex);
     
     if (isMobile && 'vibrate' in navigator) {
       navigator.vibrate(10);
     }
-  }, [currentStep, steps.length, isTransitioning, isMobile]);
+  }, [api, currentStep, steps.length, isMobile]);
 
   const goToStep = useCallback((stepIndex: number) => {
-    if (isTransitioning || stepIndex === currentStep) return;
-    
-    setIsTransitioning(true);
-    setCurrentStep(stepIndex);
-  }, [currentStep, isTransitioning]);
-
-  // Gestion des transitions avec reset invisible
-  const handleAnimationComplete = useCallback(() => {
-    // Reset instantané aux extrémités pour boucle infinie
-    if (bufferIndex === 0) {
-      // Sauté au dernier vrai élément
-      x.set(-(steps.length * itemWidth));
-      setCurrentStep(steps.length - 1);
-    } else if (bufferIndex === extendedSteps.length - 1) {
-      // Sauté au premier vrai élément
-      x.set(-itemWidth);
-      setCurrentStep(0);
-    }
-    
-    setIsTransitioning(false);
-  }, [bufferIndex, extendedSteps.length, steps.length, itemWidth, x]);
-
-  // Gestion du drag
-  const handleDrag = useCallback((_: any, info: PanInfo) => {
-    // Restriction du drag pendant les transitions
-    if (isTransitioning) return;
-  }, [isTransitioning]);
-
-  const handleDragEnd = useCallback((_: any, info: PanInfo) => {
-    if (isTransitioning) return;
-
-    const { offset, velocity } = info;
-    const threshold = isMobile ? DRAG_THRESHOLD * 0.7 : DRAG_THRESHOLD;
-    const velocityThreshold = isMobile ? VELOCITY_THRESHOLD * 0.8 : VELOCITY_THRESHOLD;
-
-    if (offset.x < -threshold || velocity.x < -velocityThreshold) {
-      goToNext();
-    } else if (offset.x > threshold || velocity.x > velocityThreshold) {
-      goToPrev();
-    }
-  }, [goToNext, goToPrev, isTransitioning, isMobile]);
-
-  // Position du track
-  const trackX = -bufferIndex * itemWidth;
+    if (!api || stepIndex === currentStep) return;
+    api.scrollTo(stepIndex);
+  }, [api, currentStep]);
 
   // Placeholder optimisé
   const placeholder = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjUzMyIgZmlsbD0iI2Y5ZmFmYiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIi8+";
 
   return (
-    <div className="w-full max-w-lg mx-auto select-none" ref={containerRef}>
+    <div className="w-full max-w-lg mx-auto select-none">
       <div className="relative flex items-center justify-center">
         
-        {/* Navigation desktop */}
+        {/* Navigation desktop - Boutons personnalisés */}
         {!isMobile && (
           <>
             <button
               onClick={goToPrev}
-              disabled={isTransitioning}
               className="absolute -left-12 p-3 z-10 disabled:opacity-50 transition-opacity"
               style={{ top: 'calc(50% - 100px)' }}
               aria-label="Étape précédente"
             >
               <Image
                 src="/icons/arrowright.svg"
-                alt=""
+                alt="Flèche précédente - Étape précédente"
                 width={34}
                 height={34}
                 className="w-9 h-9 rotate-180"
@@ -166,14 +128,13 @@ const StepCarousel = ({ steps }: StepCarouselProps) => {
 
             <button
               onClick={goToNext}
-              disabled={isTransitioning}
               className="absolute -right-12 p-3 z-10 disabled:opacity-50 transition-opacity"
               style={{ top: 'calc(50% - 100px)' }}
               aria-label="Étape suivante"
             >
               <Image
                 src="/icons/arrowright.svg"
-                alt=""
+                alt="Flèche suivante - Étape suivante"
                 width={34}
                 height={34}
                 className="w-9 h-9"
@@ -183,41 +144,24 @@ const StepCarousel = ({ steps }: StepCarouselProps) => {
         )}
 
         {/* Container carousel */}
-        <div 
-          className="overflow-hidden"
-          style={{ width: `${itemWidth}px` }}
+        <Carousel 
+          setApi={setApi}
+          opts={{
+            align: "center",
+            loop: false, // Désactiver la boucle automatique d'Embla
+            duration: 25,
+          }}
+          className="w-full"
+          style={{ maxWidth: `${itemWidth}px` }}
         >
-          <motion.div
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.1}
-            dragMomentum={false}
-            style={{
-              display: 'flex',
-              width: `${itemWidth * extendedSteps.length}px`,
-              x,
-            }}
-            animate={{
-              x: trackX,
-            }}
-            transition={{
-              type: "spring",
-              damping: 30,
-              stiffness: 300,
-              duration: 0.5,
-            }}
-            onDrag={handleDrag}
-            onDragEnd={handleDragEnd}
-            onAnimationComplete={handleAnimationComplete}
-            className="cursor-grab active:cursor-grabbing"
-          >
-            {extendedSteps.map((step, index) => {
-              const isActive = index === bufferIndex;
+          <CarouselContent className="-ml-0">
+            {steps.map((step, index) => {
+              const isActive = index === currentStep;
               
               return (
-                <div
-                  key={`${step.id}-${index}`}
-                  className="flex-shrink-0 flex flex-col items-center text-center"
+                <CarouselItem
+                  key={step.id}
+                  className="pl-0 flex flex-col items-center text-center"
                   style={{ 
                     width: itemWidth,
                     transform: `scale(${isActive ? 1 : 0.95})`,
@@ -239,10 +183,10 @@ const StepCarousel = ({ steps }: StepCarouselProps) => {
                       className="object-contain"
                       sizes={isMobile ? "280px" : "300px"}
                       quality={95}
-                      priority={Math.abs(index - bufferIndex) <= 1}
+                      priority={Math.abs(index - currentStep) <= 1}
                       placeholder="blur"
                       blurDataURL={placeholder}
-                      loading={Math.abs(index - bufferIndex) <= 1 ? "eager" : "lazy"}
+                      loading={Math.abs(index - currentStep) <= 1 ? "eager" : "lazy"}
                     />
                   </div>
 
@@ -259,11 +203,11 @@ const StepCarousel = ({ steps }: StepCarouselProps) => {
                       {step.description}
                     </p>
                   </div>
-                </div>
+                </CarouselItem>
               );
             })}
-          </motion.div>
-        </div>
+          </CarouselContent>
+        </Carousel>
       </div>
 
       {/* Indicateurs */}
@@ -272,7 +216,6 @@ const StepCarousel = ({ steps }: StepCarouselProps) => {
           <button
             key={index}
             onClick={() => goToStep(index)}
-            disabled={isTransitioning}
             className={`transition-all duration-300 ${
               currentStep === index
                 ? 'w-8 h-2 bg-ecolyon-green rounded-full' 

@@ -1,0 +1,17 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+
+# Googlebot
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+# Host
+Host: https://ecolyon.fr
+
+# Sitemaps
+Sitemap: https://ecolyon.fr/sitemap.xml

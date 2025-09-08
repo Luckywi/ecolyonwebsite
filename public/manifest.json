@@ -1,0 +1,50 @@
+{
+  "name": "EcoLyon - Lyon connectée à son environnement",
+  "short_name": "EcoLyon",
+  "description": "Découvrez la qualité de l'air, les infrastructures écologiques et le compostage à Lyon",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8F7F4",
+  "theme_color": "#22c55e",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/LYON.png",
+      "sizes": "480x480",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["lifestyle", "utilities", "environment"],
+  "screenshots": [
+    {
+      "src": "/icons/mockupv3.svg",
+      "sizes": "375x812",
+      "type": "image/svg+xml"
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "itunes",
+      "id": "6747041717",
+      "url": "https://apps.apple.com/app/id6747041717"
+    }
+  ],
+  "prefer_related_applications": true,
+  "lang": "fr-FR"
+}

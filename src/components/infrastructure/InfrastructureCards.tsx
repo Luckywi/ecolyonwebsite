@@ -25,9 +25,7 @@ interface InfrastructureCardsProps {
   error: string;
 }
 
-const InfrastructureCards = ({ data, loading, error }: InfrastructureCardsProps) => {
-  // Configuration des infrastructures avec leurs icônes, textes et liens
-  const infrastructureConfig: Record<string, { icon: string; title: string; subtitle: string; link: string }> = {
+const infrastructureConfig: Record<string, { icon: string; title: string; subtitle: string; link: string }> = {
     'Bancs Publics': {
       icon: '/logos/banc.png',
       title: 'Où se reposer à Lyon ? Localisez les bancs les plus proches',
@@ -84,6 +82,9 @@ const InfrastructureCards = ({ data, loading, error }: InfrastructureCardsProps)
     }
   };
 
+
+const InfrastructureCards = ({ data, loading, error }: InfrastructureCardsProps) => {
+  // Configuration des infrastructures avec leurs icônes, textes et liens
   // Mémoriser les données traitées pour éviter les recalculs
   const processedInfrastructures = useMemo(() => {
     return data
@@ -110,28 +111,29 @@ const InfrastructureCards = ({ data, loading, error }: InfrastructureCardsProps)
         className="group"
       >
         <Link href={infrastructure.link} className="block cursor-pointer">
-          <div className="backdrop-blur-sm rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20">
-            <div className="flex items-center gap-6">
-              {/* Icône */}
-              <div className="flex-shrink-0">
-                <div className="w-20 h-20 relative">
+          <div className="backdrop-blur-sm rounded-2xl p-4 sm:p-6 md:p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20">
+            {/* Layout responsive : vertical sur mobile, horizontal sur desktop */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+              {/* Icône - Taille responsive */}
+              <div className="flex-shrink-0 mx-auto sm:mx-0">
+                <div className="w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 relative">
                   <Image
                     src={infrastructure.icon}
                     alt={infrastructure.name}
                     fill
                     className="object-contain group-hover:scale-110 transition-transform duration-300"
-                    sizes="80px"
+                    sizes="(max-width: 640px) 64px, (max-width: 768px) 72px, 80px"
                     loading="lazy"
                   />
                 </div>
               </div>
               
-              {/* Contenu */}
-              <div className="flex-grow min-w-0">
-                <h3 className="text-xl font-normal text-black mb-3 transition-colors duration-300">
+              {/* Contenu - Centré sur mobile */}
+              <div className="flex-grow min-w-0 text-center sm:text-left">
+                <h3 className="text-lg sm:text-xl font-normal text-black mb-2 sm:mb-3 transition-colors duration-300 leading-tight">
                   {infrastructure.title}
                 </h3>
-                <p className="text-base text-gray-600 leading-relaxed">
+                <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
                   {infrastructure.name === 'Randonnées' || infrastructure.name === 'Parcs et Jardins' ? (
                     <>
                       Consultez les{' '}
@@ -152,14 +154,14 @@ const InfrastructureCards = ({ data, loading, error }: InfrastructureCardsProps)
                 </p>
               </div>
               
-              {/* Flèche */}
-              <div className="flex-shrink-0">
+              {/* Flèche - Centrée sur mobile */}
+              <div className="flex-shrink-0 mx-auto sm:mx-0">
                 <Image
                   src="/icons/arrowright.svg"
                   alt="Voir plus"
                   width={28}
                   height={28}
-                  className="w-7 h-7 group-hover:translate-x-1 transition-transform duration-300"
+                  className="w-6 h-6 sm:w-7 sm:h-7 group-hover:translate-x-1 transition-transform duration-300"
                   style={{ filter: 'brightness(0) saturate(100%)' }}
                   loading="lazy"
                 />
@@ -181,40 +183,41 @@ const InfrastructureCards = ({ data, loading, error }: InfrastructureCardsProps)
         className="group"
       >
         <Link href="/contact" className="block cursor-pointer">
-          <div className=" backdrop-blur-sm rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20">
-            <div className="flex items-center gap-6">
-              {/* Icône Lyon */}
-              <div className="flex-shrink-0">
-                <div className="w-20 h-20 relative">
+          <div className="backdrop-blur-sm rounded-2xl p-4 sm:p-6 md:p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20">
+            {/* Layout responsive : vertical sur mobile, horizontal sur desktop */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+              {/* Icône Lyon - Taille responsive */}
+              <div className="flex-shrink-0 mx-auto sm:mx-0">
+                <div className="w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 relative">
                   <Image
                     src="/icons/LYON.png"
                     alt="Lyon - Recommandations"
                     fill
                     className="object-contain group-hover:scale-110 transition-transform duration-300"
-                    sizes="80px"
+                    sizes="(max-width: 640px) 64px, (max-width: 768px) 72px, 80px"
                     loading="lazy"
                   />
                 </div>
               </div>
               
-              {/* Contenu */}
-              <div className="flex-grow min-w-0">
-                <h3 className="text-xl font-normal text-black mb-3 transition-colors duration-300">
+              {/* Contenu - Centré sur mobile */}
+              <div className="flex-grow min-w-0 text-center sm:text-left">
+                <h3 className="text-lg sm:text-xl font-normal text-black mb-2 sm:mb-3 transition-colors duration-300 leading-tight">
                   Des recommandations pour améliorer EcoLyon ?
                 </h3>
-                <p className="text-base text-gray-600 leading-relaxed">
+                <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
                   Partagez vos idées pour rendre Lyon encore plus connectée à son environnement et améliorer l&apos;application EcoLyon
                 </p>
               </div>
               
-              {/* Flèche */}
-              <div className="flex-shrink-0">
+              {/* Flèche - Centrée sur mobile */}
+              <div className="flex-shrink-0 mx-auto sm:mx-0">
                 <Image
                   src="/icons/arrowright.svg"
                   alt="Partager vos idées"
                   width={28}
                   height={28}
-                  className="w-7 h-7 group-hover:translate-x-1 transition-transform duration-300"
+                  className="w-6 h-6 sm:w-7 sm:h-7 group-hover:translate-x-1 transition-transform duration-300"
                   style={{ filter: 'brightness(0) saturate(100%)' }}
                   loading="lazy"
                 />
@@ -226,29 +229,30 @@ const InfrastructureCards = ({ data, loading, error }: InfrastructureCardsProps)
     );
   };
 
-  // Skeleton de chargement optimisé
-  const SkeletonCard = ({ index }: { index: number }) => (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3, delay: index * 0.05 }}
-      className=" rounded-2xl p-8 shadow-lg"
-    >
-      <div className="flex items-center gap-6">
-        <div className="w-20 h-20 bg-gray-300 rounded-2xl animate-pulse"></div>
-        <div className="flex-grow space-y-3">
-          <div className="h-6 bg-gray-300 rounded animate-pulse w-3/4"></div>
-          <div className="h-4 bg-gray-300 rounded animate-pulse w-5/6"></div>
+  // Skeleton de chargement optimisé et responsive
+  const SkeletonCard = ({}: { index: number }) => (
+    <div className="rounded-2xl p-4 sm:p-6 md:p-8 shadow-lg animate-pulse">
+      {/* Layout skeleton responsive */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+        {/* Skeleton icône */}
+        <div className="w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 bg-gray-300 rounded-2xl animate-pulse mx-auto sm:mx-0 flex-shrink-0"></div>
+        
+        {/* Skeleton contenu */}
+        <div className="flex-grow space-y-2 sm:space-y-3 w-full text-center sm:text-left">
+          <div className="h-5 sm:h-6 bg-gray-300 rounded animate-pulse w-4/5 mx-auto sm:mx-0"></div>
+          <div className="h-4 bg-gray-300 rounded animate-pulse w-5/6 mx-auto sm:mx-0"></div>
         </div>
-        <div className="w-7 h-7 bg-gray-300 rounded animate-pulse"></div>
+        
+        {/* Skeleton flèche */}
+        <div className="w-6 h-6 sm:w-7 sm:h-7 bg-gray-300 rounded animate-pulse mx-auto sm:mx-0 flex-shrink-0"></div>
       </div>
-    </motion.div>
+    </div>
   );
 
   if (loading) {
     return (
-      <div className="py-12 px-4 sm:px-6 lg:px-8 bg-[#F8F7F4]">
-        <div className="max-w-4xl mx-auto space-y-4">
+      <div className="py-8 sm:py-10 md:py-12 px-4 sm:px-6 lg:px-8 bg-[#F8F7F4]">
+        <div className="max-w-4xl mx-auto space-y-3 sm:space-y-4">
           {[...Array(6)].map((_, index) => (
             <SkeletonCard key={index} index={index} />
           ))}
@@ -259,18 +263,18 @@ const InfrastructureCards = ({ data, loading, error }: InfrastructureCardsProps)
 
   if (error) {
     return (
-      <div className="py-12 px-4 sm:px-6 lg:px-8 bg-[#F8F7F4]">
+      <div className="py-8 sm:py-10 md:py-12 px-4 sm:px-6 lg:px-8 bg-[#F8F7F4]">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="text-red-500 text-lg">{error}</p>
+          <p className="text-red-500 text-base sm:text-lg">{error}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="py-12 px-4 sm:px-6 lg:px-8 bg-[#F8F7F4]">
+    <div className="py-8 sm:py-10 md:py-12 px-4 sm:px-6 lg:px-8 bg-[#F8F7F4]">
       <div className="max-w-4xl mx-auto">
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {processedInfrastructures.map((infrastructure, index) => (
             <InfrastructureCard
               key={infrastructure.name}

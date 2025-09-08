@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { AlertTriangle } from 'lucide-react';
 
 const AtmoScaleExplanation = () => {
   const [selectedLevel, setSelectedLevel] = useState(1);
@@ -96,23 +95,23 @@ const AtmoScaleExplanation = () => {
   const currentLevel = atmoScale.find(level => level.indice === selectedLevel);
 
   return (
-    <section className="py-12 px-4 sm:px-6 lg:px-8 bg-[#F8F7F4]">
+    <section className="py-8 md:py-12 px-4 sm:px-6 lg:px-8 bg-[#F8F7F4]">
       <div className="max-w-5xl mx-auto">
         {/* Titre */}
-        <h2 className="text-3xl font-light text-black text-center mb-12">
+        <h2 className="text-2xl md:text-3xl font-light text-black text-center mb-8 md:mb-12">
           Comprendre l&apos;indice ATMO
         </h2>
 
         {/* Barre de couleurs interactive */}
-        <div className="flex justify-center gap-3 mb-12">
+        <div className="flex justify-center gap-1 sm:gap-2 md:gap-3 mb-8 md:mb-12 px-2">
           {atmoScale.map((niveau) => (
             <button
               key={niveau.indice}
               onClick={() => setSelectedLevel(niveau.indice)}
-              className={`h-12 rounded-full transition-all duration-300 ${
+              className={`h-8 sm:h-10 md:h-12 rounded-full transition-all duration-300 ${
                 selectedLevel === niveau.indice 
-                  ? 'w-32 shadow-lg transform scale-105' 
-                  : 'w-24 hover:w-28'
+                  ? 'w-16 sm:w-24 md:w-32 shadow-lg transform scale-105' 
+                  : 'w-12 sm:w-20 md:w-24 hover:w-14 sm:hover:w-24 md:hover:w-28'
               }`}
               style={{ backgroundColor: niveau.couleur }}
             />
@@ -129,7 +128,7 @@ const AtmoScaleExplanation = () => {
             className="text-center"
           >
             {/* Phrase principale */}
-            <h3 className="text-2xl font-light text-black mb-4">
+            <h3 className="text-xl sm:text-xl md:text-2xl font-light text-black mb-3 md:mb-4 px-2">
               La qualité de l&apos;air est{' '}
               <span style={{ color: currentLevel.couleur }} className="font-medium">
                 {currentLevel.qualificatif}
@@ -137,18 +136,18 @@ const AtmoScaleExplanation = () => {
             </h3>
 
             {/* Description */}
-            <p className="text-gray-600 text-lg mb-6">{currentLevel.description}</p>
+            <p className="text-gray-600 text-base sm:text-lg mb-4 md:mb-6 px-2">{currentLevel.description}</p>
 
             {/* Recommandation */}
-            <p className="text-gray-700 text-sm mb-16 max-w-2xl mx-auto">
+            <p className="text-gray-700 text-sm mb-10 md:mb-16 max-w-2xl mx-auto px-2">
               <strong>Recommandation :</strong> {currentLevel.conseil}
             </p>
 
-            {/* Section avec tableau comme dans votre mockup */}
-            <div className="flex items-center max-w-4xl mx-auto">
-              {/* Texte explicatif à gauche - 50% */}
-              <div className="w-1/2 pr-8 flex items-center justify-center">
-                <p className="text-sm text-gray-700 leading-relaxed text-center">
+            {/* Section avec tableau - Layout responsive */}
+            <div className="flex flex-col md:flex-row md:items-center max-w-4xl mx-auto">
+              {/* Texte explicatif */}
+              <div className="w-full md:w-1/2 md:pr-8 flex items-center justify-center mb-6 md:mb-0">
+                <p className="text-sm text-gray-700 leading-relaxed text-center px-2">
                   L&apos;indice d&apos;un polluant est considéré comme{' '}
                   <span className="font-medium">
                     {currentLevel.indice === 1 ? 'bon' : 
@@ -162,8 +161,8 @@ const AtmoScaleExplanation = () => {
                 </p>
               </div>
 
-              {/* Tableau des seuils à droite - 50% */}
-              <div className="w-1/2">
+              {/* Tableau des seuils */}
+              <div className="w-full md:w-1/2">
                 <div className="border-l border-gray-300 pl-6">
                   {Object.entries(currentLevel.seuils).map(([polluant, seuil]) => (
                     <div key={polluant} className="flex justify-between items-center py-1 border-b border-gray-200 last:border-b-0">
@@ -178,11 +177,13 @@ const AtmoScaleExplanation = () => {
         )}
 
         {/* Explication du calcul global */}
-        <div className="mt-16 text-center">
-          <div className="rounded-xl p-6 max-w-3xl mx-auto shadow-lg">
-            <h4><strong>Comment est calculé l&apos;indice global ?</strong></h4>
-            <p className="text-sm text-black leading-relaxed">
-       <br/>
+        <div className="mt-12 md:mt-16 text-center">
+          <div className="rounded-xl p-4 md:p-6 max-w-3xl mx-auto">
+            <h3 className="text-xl md:text-2xl font-light text-black mb-3 md:mb-4 px-2">
+              Comment est calculé l&apos;indice global ?
+            </h3>
+            <p className="space-y-4 mb-6 md:mb-8 text-gray-700 leading-relaxed text-sm md:text-base px-2">
+              <br/>
               L&apos;indice ATMO global correspond toujours au polluant le plus dégradé : si 4 polluants sont bons mais que l&apos;ozone est mauvais, l&apos;indice sera mauvais.
             </p>
           </div>
