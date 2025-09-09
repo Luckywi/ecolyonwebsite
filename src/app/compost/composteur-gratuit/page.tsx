@@ -2,6 +2,8 @@ import { Metadata } from 'next'
 import ComposteurGratuitClient from './ComposteurGratuitClient'
 import SchemaHead from '@/components/schema/SchemaHead'
 
+export const dynamic = 'force-static'
+
 export const metadata: Metadata = {
   title: 'Composteur gratuit - Métropole de Lyon',
   description: 'Obtenez gratuitement un composteur de la Métropole de Lyon. Plus de 24 000 composteurs distribués pour réduire vos déchets alimentaires.',

@@ -5,6 +5,8 @@ import Bubble from '@/components/landing/Bubble';
 import Dock from '@/components/infrastructure/Dock';
 import SchemaHead from '@/components/schema/SchemaHead';
 
+export const dynamic = 'force-static'
+
 export const metadata: Metadata = {
   title: 'EcoLyon - Lyon connectée à son environnement',
   description: 'Découvrez Lyon sous un angle écologique : qualité de l\'air en temps réel, infrastructures vertes, compostage urbain. L\'application gratuite pour une métropole plus durable.',

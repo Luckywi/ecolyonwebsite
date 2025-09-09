@@ -2,6 +2,8 @@ import { Metadata } from 'next'
 import GuideClient from './GuideClient'
 import SchemaHead from '@/components/schema/SchemaHead'
 
+export const dynamic = 'force-static'
+
 export const metadata: Metadata = {
   title: 'Guide du compost Lyonnais - EcoLyon',
   description: 'Découvrez le parcours complet de vos déchets alimentaires dans les bornes à compost de la Métropole de Lyon. Du tri à la valorisation locale.',

@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
-import createGlobe from 'cobe';
+import { useState, useEffect } from 'react';
 import PollutionCards from '@/components/air/PollutionCards';
 import AtmoScaleExplanation from '@/components/air/AtmoScaleExplanation';
 import IncitySection from '@/components/air/IncitySection';
+import GlobeBackground from '@/components/air/GlobeBackgroundLazy';
 
 // Types pour les données de commentaire ATMO
 interface CommentaireData {
@@ -25,25 +25,7 @@ interface AirQualityData {
   }[];
 }
 
-// Type pour le globe Cobe
-interface CobeGlobe {
-  destroy: () => void;
-}
-
-// Type pour l'état du rendu du globe (utilise Record<string, any> comme attendu par cobe)
-type GlobeRenderState = Record<string, any> & {
-  phi: number;
-  markerColor: [number, number, number];
-  glowColor: [number, number, number];
-}
-
 export default function QualiteAirClient() {
-  // Refs pour le globe
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const globeRef = useRef<CobeGlobe | null>(null);
-
-  // Coordonnées de Lyon
-  const LYON_COORDINATES = { lat: 45.7640, lng: 4.8357 };
 
   // États pour la qualité d'air
   const [currentQuality, setCurrentQuality] = useState('');
@@ -142,66 +124,6 @@ export default function QualiteAirClient() {
     }
   };
 
-  // Créer le globe avec dimensions responsives
-  useEffect(() => {
-    let phi = 0;
-    let width = 0;
-    
-    const onResize = () => {
-      if (canvasRef.current) {
-        // Calcul responsive : 300px sur mobile, 600px sur desktop
-        const container = canvasRef.current.parentElement;
-        if (container) {
-          width = container.offsetWidth;
-        }
-      }
-    };
-    
-    window.addEventListener('resize', onResize);
-    onResize();
-    
-    if (canvasRef.current) {
-      globeRef.current = createGlobe(canvasRef.current, {
-        devicePixelRatio: 2,
-        width: width * 2,
-        height: width * 2,
-        phi: 0,
-        theta: 0.2,
-        dark: 0.1,
-        diffuse: 0.8,
-        mapSamples: 16000,
-        mapBrightness: 4,
-        baseColor: [0.973, 0.969, 0.957], // #F8F7F4
-        markerColor: [1, 1, 1],
-        glowColor: [0.973, 0.969, 0.957],
-        opacity: 1,
-        offset: [0, 0],
-        markers: [{
-          location: [LYON_COORDINATES.lat, LYON_COORDINATES.lng],
-          size: 0.08 + (globalIndex * 0.02),
-        }],
-        onRender: (state: GlobeRenderState) => {
-          phi += 0.005;
-          state.phi = phi;
-          
-          const hexColor = currentColor || '#50F0E6';
-          const r = parseInt(hexColor.slice(1, 3), 16) / 255;
-          const g = parseInt(hexColor.slice(3, 5), 16) / 255;
-          const b = parseInt(hexColor.slice(5, 7), 16) / 255;
-          
-          state.markerColor = [r, g, b];
-          state.glowColor = [r, g, b];
-        }
-      });
-    }
-
-    return () => {
-      if (globeRef.current) {
-        globeRef.current.destroy();
-      }
-      window.removeEventListener('resize', onResize);
-    };
-  }, [currentColor, globalIndex, LYON_COORDINATES.lat, LYON_COORDINATES.lng]);
 
   useEffect(() => {
     fetchAirQuality();
@@ -223,19 +145,8 @@ export default function QualiteAirClient() {
 
   return (
     <div className="min-h-screen bg-[#F8F7F4] relative overflow-hidden">
-      {/* Globe en arrière-plan - RESPONSIVE */}
-      <div className="absolute top-8 sm:top-15 left-1/2 transform -translate-x-1/2">
-        <div className="w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] lg:w-[600px] lg:h-[600px]">
-          <canvas
-            ref={canvasRef}
-            className="w-full h-full opacity-90"
-            style={{
-              cursor: 'grab',
-              contain: 'layout style size'
-            }}
-          />
-        </div>
-      </div>
+      {/* Globe en arrière-plan - RESPONSIVE avec lazy loading */}
+      <GlobeBackground qualityColor={currentColor} globalIndex={globalIndex} />
 
       {/* Bannière avec contenu - MARGES AJUSTÉES */}
       <div className="relative z-10 bg-[#F8F7F4] mt-[200px] sm:mt-[250px] lg:mt-[300px]">

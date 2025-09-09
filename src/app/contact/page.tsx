@@ -2,6 +2,8 @@ import { Metadata } from 'next'
 import ContactClient from './ContactClient'
 import SchemaHead from '@/components/schema/SchemaHead'
 
+export const dynamic = 'force-static'
+
 export const metadata: Metadata = {
   title: 'Contact - EcoLyon',
   description: 'Contactez l\'équipe EcoLyon. Questions, suggestions ou problèmes techniques, nous sommes là pour vous aider.',

@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useState, useEffect } from 'react'
-import BubbleMenu from './BubbleMenu'
+import BubbleMenu from './BubbleMenuLazy'
 
 const Header = () => {
   const [isMenuOpen] = useState(false)
