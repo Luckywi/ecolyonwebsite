@@ -20,14 +20,12 @@ const nextConfig: NextConfig = {
         hostname: '**',
       },
     ],
-    // La qualité se configure au niveau du composant Image, pas ici
     unoptimized: false,
   },
 
   // Optimisation des bundles
   experimental: {
     optimizePackageImports: ['framer-motion', 'gsap', 'cobe', 'react-leaflet'],
-    // Optimisations expérimentales pour les performances
     webpackBuildWorker: true,
     serverComponentsExternalPackages: ['sharp'],
   },
@@ -45,10 +43,11 @@ const nextConfig: NextConfig = {
   // Compression
   compress: true,
 
-  // Headers de performance
+  // Headers de performance et cache optimisés
   async headers() {
     return [
       {
+        // Headers globaux de sécurité
         source: '/(.*)',
         headers: [
           {
@@ -70,6 +69,27 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        // Pages HTML principales - cache modéré pour PSI
+        source: '/((?!api|_next/static|_next/image|images|sitemap|robots).*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=3600',
+          },
+        ],
+      },
+      {
+        // Pages API - pas de cache
+        source: '/api/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+        ],
+      },
+      {
+        // Images - cache long
         source: '/images/(.*)',
         headers: [
           {
@@ -79,6 +99,7 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        // Assets Next.js - cache très long
         source: '/_next/static/(.*)',
         headers: [
           {
@@ -87,8 +108,18 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      // Headers pour les sitemaps (version no-cache temporaire)
       {
+        // Images optimisées Next.js - cache long
+        source: '/_next/image/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        // Sitemap XML - pas de cache pour le SEO
         source: '/sitemap.xml',
         headers: [
           {
@@ -110,6 +141,7 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        // Sitemap 0 - pas de cache
         source: '/sitemap-0.xml',
         headers: [
           {
@@ -131,6 +163,7 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        // Robots.txt - cache modéré
         source: '/robots.txt',
         headers: [
           {
@@ -139,7 +172,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Cache-Control',
-            value: 'public, max-age=3600', // 1 heure de cache
+            value: 'public, max-age=3600',
           },
         ],
       },
