@@ -3,10 +3,13 @@
   "short_name": "EcoLyon",
   "description": "Découvrez la qualité de l'air, les infrastructures écologiques et le compostage à Lyon",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#F8F7F4",
   "theme_color": "#F8F7F4",
   "orientation": "portrait",
+  "dir": "ltr",
+  "lang": "fr-FR",
   "icons": [
     {
       "src": "/favicon-16x16.png",
@@ -24,20 +27,64 @@
       "type": "image/png"
     },
     {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
       "src": "/icons/LYON.png",
       "sizes": "480x480",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Qualité de l'air",
+      "short_name": "Air",
+      "description": "Vérifier la qualité de l'air à Lyon",
+      "url": "/air-quality",
+      "icons": [
+        {
+          "src": "/icons/air-icon.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Infrastructures écologiques",
+      "short_name": "Infra",
+      "description": "Explorer les infrastructures vertes de Lyon",
+      "url": "/infrastructures",
+      "icons": [
+        {
+          "src": "/icons/infra-icon.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Compostage",
+      "short_name": "Compost",
+      "description": "Trouver les points de compostage à Lyon",
+      "url": "/compostage",
+      "icons": [
+        {
+          "src": "/icons/compost-icon.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
     }
   ],
   "categories": ["lifestyle", "utilities", "environment"],
-  "screenshots": [
-    {
-      "src": "/icons/mockupv3.svg",
-      "sizes": "375x812",
-      "type": "image/svg+xml"
-    }
-  ],
   "related_applications": [
     {
       "platform": "itunes",
@@ -45,6 +92,5 @@
       "url": "https://apps.apple.com/app/id6747041717"
     }
   ],
-  "prefer_related_applications": true,
-  "lang": "fr-FR"
+  "prefer_related_applications": false
 }

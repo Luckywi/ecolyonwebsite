@@ -293,7 +293,7 @@ const Footer = () => {
 
             {/* Réseaux sociaux */}
             <div className="flex items-center justify-center lg:justify-start space-x-6 lg:space-x-4 w-full lg:w-auto">
-              <Link href="#" className="group">
+              <Link href="https://www.tiktok.com/@ecolyon.app" className="group">
                 <Image
                   src="/icons/tiktok.svg"
                   alt="TikTok"
@@ -304,7 +304,7 @@ const Footer = () => {
                 />
               </Link>
               
-              <Link href="#" className="group">
+              <Link href="https://www.instagram.com/ecolyon.app/#" className="group">
                 <Image
                   src="/icons/instagram.svg"
                   alt="Instagram"
